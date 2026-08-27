@@ -709,6 +709,68 @@ section{ position:relative; }
 }
 .appellations li:hover{ color:var(--gold-hi); border-color:var(--gold); background:rgba(201,169,110,.06); }
 
+/* ---------- circuits & carte ---------- */
+
+.map-figure{
+  margin:0; padding:clamp(20px,2.6vw,32px);
+  border:1px solid var(--line);
+  background:rgba(201,169,110,.035);
+}
+.map-svg{ width:100%; height:auto; display:block; overflow:visible; }
+.map-svg text{ font-family:var(--sans); letter-spacing:.02em; }
+.map-hub{ fill:var(--gold); }
+.map-hub-ring{ fill:none; stroke:var(--gold); stroke-width:1; opacity:.4; }
+.map-stop{ fill:var(--ink-2); stroke-width:1.6; }
+.map-label{ fill:var(--paper-dim); font-size:12px; }
+.map-label-hub{ fill:var(--paper); font-size:13px; }
+.map-route{ fill:none; stroke-width:1.6; stroke-dasharray:1 7; stroke-linecap:round; }
+.map-route-a{ stroke:var(--gold); }
+.map-route-b{ stroke:var(--gold-hi); }
+.map-route-c{ stroke:var(--gold-deep); }
+.map-river{ fill:none; stroke:var(--line); stroke-width:10; stroke-linecap:round; }
+
+.map-legend{ list-style:none; margin:clamp(22px,3vw,32px) 0 0; padding:0; display:grid; gap:14px; }
+.map-legend li{ display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:start; font-size:14px; color:var(--paper-dim); }
+.map-legend i{ width:11px; height:11px; margin-top:5px; border-radius:50%; }
+.map-legend b{ display:block; font-family:var(--display); font-weight:400; color:var(--paper); font-size:15px; margin-bottom:2px; }
+.leg-a{ background:var(--gold); }
+.leg-b{ background:var(--gold-hi); }
+.leg-c{ background:var(--gold-deep); }
+
+.circuit-tag{
+  display:inline-block; margin-bottom:6px;
+  font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold-deep);
+}
+.circuit-steps{ list-style:none; margin:22px 0 0; padding:0; }
+.circuit-steps li{
+  display:grid; grid-template-columns:52px 1fr; gap:14px;
+  padding:12px 0; border-top:1px solid var(--line-soft);
+  font-size:14px; color:var(--paper-dim);
+}
+.cs-time{ font-family:var(--display); color:var(--gold); font-size:13px; }
+.circuit-meta{
+  margin-top:20px; padding-top:16px; border-top:1px solid var(--line-soft);
+  font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--paper-faint);
+}
+
+/* ---------- tableau comparatif ---------- */
+
+.table-scroll{ overflow-x:auto; margin-top:clamp(30px,4vw,44px); }
+.cmp{ width:100%; min-width:640px; border-collapse:collapse; font-size:14px; }
+.cmp caption{ caption-side:bottom; text-align:left; margin-top:16px; font-size:11.5px; color:var(--paper-faint); line-height:1.7; }
+.cmp th, .cmp td{ padding:16px 18px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line-soft); }
+.cmp thead th{
+  font-family:var(--sans); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--paper-faint); font-weight:400; border-bottom:1px solid var(--line);
+}
+.cmp tbody th{ font-weight:400; color:var(--paper); font-family:var(--editorial); font-size:15.5px; white-space:nowrap; }
+.cmp td{ color:var(--paper-dim); }
+.cmp .col-lx{ color:var(--gold-hi); }
+.cmp thead .col-lx{ color:var(--gold); }
+.cmp tfoot th, .cmp tfoot td{ border-bottom:0; border-top:1px solid var(--line); padding-top:20px; }
+.cmp tfoot th{ color:var(--paper); }
+.cmp tfoot td{ color:var(--paper); font-family:var(--editorial); font-size:15.5px; }
+
 /* ---------- déroulé ---------- */
 
 .steps{ counter-reset:s; display:grid; grid-template-columns:1fr; gap:clamp(28px,3vw,40px); }
@@ -920,6 +982,7 @@ form{ display:grid; gap:22px; }
 
     <nav class="nav-desk" aria-label="Navigation principale">
       <a href="index.html#wine-tours">Wine tours</a>
+      <a href="index.html#circuits">Circuits</a>
       <a href="index.html#transport">Transport privé</a>
       <a href="index.html#classe-s">La Classe S</a>
       <a href="index.html#bordeaux">Bordeaux</a>
@@ -938,13 +1001,14 @@ form{ display:grid; gap:22px; }
 <div class="nav-overlay" id="menu" role="dialog" aria-modal="true" aria-label="Menu de navigation" inert>
   <nav aria-label="Navigation mobile">
     <ol>
-      <li><a href="index.html#wine-tours"><em>01</em>Wine tours</a></li>
-      <li><a href="index.html#transport"><em>02</em>Transport privé</a></li>
-      <li><a href="index.html#classe-s"><em>03</em>La Classe S</a></li>
-      <li><a href="index.html#discretion"><em>04</em>Discrétion</a></li>
-      <li><a href="index.html#bordeaux"><em>05</em>Bordeaux</a></li>
-      <li><a href="index.html#avis"><em>06</em>Avis</a></li>
-      <li><a href="index.html#contact"><em>07</em>Contact</a></li>
+      <li><a href="index.html#avis"><em>01</em>Avis</a></li>
+      <li><a href="index.html#wine-tours"><em>02</em>Wine tours</a></li>
+      <li><a href="index.html#circuits"><em>03</em>Circuits</a></li>
+      <li><a href="index.html#transport"><em>04</em>Transport privé</a></li>
+      <li><a href="index.html#classe-s"><em>05</em>La Classe S</a></li>
+      <li><a href="index.html#discretion"><em>06</em>Discrétion</a></li>
+      <li><a href="index.html#bordeaux"><em>07</em>Bordeaux</a></li>
+      <li><a href="index.html#contact"><em>08</em>Contact</a></li>
     </ol>
   </nav>
   <div class="nav-foot">
@@ -1029,6 +1093,71 @@ form{ display:grid; gap:22px; }
     </div>
   </div>
 </div>
+
+<!-- ===================== TÉMOIGNAGES (avant le 01) =====================
+     Placés avant "01 — Le service phare" : la confiance se donne avant
+     l'argumentaire. Section volontairement non numérotée dans la
+     séquence 01-09, qui commence avec le service phare.
+     Les trois avis ci-dessous sont des avis de DÉMONSTRATION.
+     Ils doivent être remplacés par de vrais avis clients, obtenus avec
+     l’accord des personnes concernées, avant la mise en ligne.
+     Aucun balisage schema.org Review n’est posé ici : il ne doit être
+     ajouté que lorsque les avis sont authentiques et vérifiables.
+     ======================================================== -->
+<section class="sec sec--paper-2" id="avis" aria-labelledby="t-avis">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow rv">Les retours</p>
+        <h2 class="h-section rv" data-d="1" id="t-avis" style="margin-top:22px">Ils nous font confiance</h2>
+      </div>
+      <p class="lede side rv" data-d="2">
+        Nos passagers ne sont pas nommés et ne le seront jamais. Ce qu’ils
+        acceptent de nous laisser dire tient en quelques lignes.
+      </p>
+    </div>
+
+    <div class="avis">
+      <!-- AVIS DÉMO à remplacer par de vrais avis avant mise en ligne -->
+      <blockquote class="rv">
+        <p class="mark" aria-hidden="true">&laquo;</p>
+        <p lang="en">The car was waiting outside the hotel every morning, and each day was
+        built around what we actually wanted to taste. We never looked at a map,
+        and we never looked at the time.</p>
+        <footer>
+          <b>Un couple venu de Californie</b>
+          Séjour de plusieurs jours dans le vignoble
+        </footer>
+      </blockquote>
+
+      <!-- AVIS DÉMO à remplacer par de vrais avis avant mise en ligne -->
+      <blockquote class="rv" data-d="1">
+        <p class="mark" aria-hidden="true">&laquo;</p>
+        <p>Nous cherchions un chauffeur, nous avons trouvé quelqu’un qui connaît
+        les domaines et qui sait aussi se taire. Le rythme était juste, du premier
+        rendez-vous au retour le soir.</p>
+        <footer>
+          <b>Un couple parisien</b>
+          Deux journées entre rive droite et rive gauche
+        </footer>
+      </blockquote>
+
+      <!-- AVIS DÉMO à remplacer par de vrais avis avant mise en ligne -->
+      <blockquote class="rv" data-d="2">
+        <p class="mark" aria-hidden="true">&laquo;</p>
+        <p>Je confie mes clients étrangers à Lincoln Luxury quand la journée doit
+        être irréprochable : ponctualité, discrétion, et une voiture qui met tout
+        le monde d’accord avant même d’ouvrir la portière.</p>
+        <footer>
+          <b>Un caviste, Bordeaux centre</b>
+          Accompagnement de clients de passage
+        </footer>
+      </blockquote>
+    </div>
+
+    <p class="avis-note rv">Avis de démonstration &mdash; à remplacer avant la mise en ligne</p>
+  </div>
+</section>
 
 <!-- ===================== 01 — WINE TOURS ===================== -->
 <section class="sec sec--paper" id="wine-tours" aria-labelledby="t-wine">
@@ -1124,12 +1253,204 @@ form{ display:grid; gap:22px; }
   </div>
 </section>
 
-<!-- ===================== 02 — TRANSPORT PRIVÉ ===================== -->
+<!-- ===================== 02 — CIRCUITS & ITINÉRAIRES ===================== -->
+<section class="sec sec--tint" id="circuits" aria-labelledby="t-circuits">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow rv"><span class="num">02</span>Pour se projeter</p>
+        <h2 class="h-section rv" data-d="1" id="t-circuits" style="margin-top:22px">Trois façons de composer votre journée</h2>
+      </div>
+      <p class="lede side rv" data-d="2">
+        Chaque wine tour est construit sur mesure, mais voici trois exemples de
+        journées telles que nous les composons, étape par étape.
+      </p>
+    </div>
+
+    <div class="grid-2 wide top">
+      <!-- Carte schématique, pas un plan géographique précis : elle situe
+           les trois directions possibles depuis Bordeaux. -->
+      <figure class="map-figure rv">
+        <svg class="map-svg" viewBox="0 0 600 520" role="img" aria-labelledby="map-title map-desc">
+          <title id="map-title">Carte schématique des trois circuits proposés au départ de Bordeaux</title>
+          <desc id="map-desc">Bordeaux au centre. Trois itinéraires en rayonnent : vers le Médoc au nord (Margaux, Pauillac, Saint-Estèphe), vers le Libournais à l’est (Pomerol, Saint-Émilion), et vers le sud (Pessac-Léognan, Sauternes).</desc>
+
+          <path class="map-river" d="M 246 -20 C 276 100, 296 180, 298 260 C 300 340, 330 400, 366 540" aria-hidden="true"></path>
+
+          <path class="map-route map-route-a" d="M 300 300 Q 274 240 254 208 Q 236 178 228 145 Q 222 112 213 88"></path>
+          <path class="map-route map-route-b" d="M 300 300 Q 348 278 383 253 Q 412 231 433 222"></path>
+          <path class="map-route map-route-c" d="M 300 300 Q 309 333 319 362 Q 334 400 353 438"></path>
+
+          <circle class="map-hub-ring" cx="300" cy="300" r="16"></circle>
+          <circle class="map-hub" cx="300" cy="300" r="6"></circle>
+          <text class="map-label-hub" x="314" y="296">Bordeaux</text>
+          <text class="map-label" x="314" y="313">votre hôtel</text>
+
+          <circle class="map-stop map-route-a" cx="254" cy="208" r="4.5"></circle>
+          <text class="map-label" x="264" y="212">Margaux</text>
+          <circle class="map-stop map-route-a" cx="228" cy="145" r="4.5"></circle>
+          <text class="map-label" x="238" y="149">Pauillac</text>
+          <circle class="map-stop map-route-a" cx="213" cy="88" r="4.5"></circle>
+          <text class="map-label" x="121" y="82">Saint-Estèphe</text>
+
+          <circle class="map-stop map-route-b" cx="383" cy="253" r="4.5"></circle>
+          <text class="map-label" x="393" y="257">Pomerol</text>
+          <circle class="map-stop map-route-b" cx="433" cy="222" r="4.5"></circle>
+          <text class="map-label" x="443" y="218">Saint-Émilion</text>
+
+          <circle class="map-stop map-route-c" cx="319" cy="362" r="4.5"></circle>
+          <text class="map-label" x="329" y="366">Pessac-Léognan</text>
+          <circle class="map-stop map-route-c" cx="353" cy="438" r="4.5"></circle>
+          <text class="map-label" x="363" y="442">Sauternes</text>
+        </svg>
+      </figure>
+
+      <div class="rv" data-d="2">
+        <p class="eyebrow" style="color:var(--paper-faint)">Un seul point de départ</p>
+        <ul class="map-legend">
+          <li><i class="leg-a" aria-hidden="true"></i><span><b>Rive gauche — Médoc</b>Margaux, Pauillac, Saint-Estèphe, le long de la route des châteaux.</span></li>
+          <li><i class="leg-b" aria-hidden="true"></i><span><b>Rive droite — Libournais</b>Saint-Émilion et Pomerol, à moins d’une heure de Bordeaux.</span></li>
+          <li><i class="leg-c" aria-hidden="true"></i><span><b>Sauternes &amp; Graves</b>Pessac-Léognan puis le Sauternais, au sud du vignoble.</span></li>
+        </ul>
+        <p class="body" style="margin-top:26px; max-width:48ch">
+          Trois directions possibles depuis Bordeaux, jamais combinées le même
+          jour : chaque circuit garde le temps nécessaire à chaque étape.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-top:clamp(48px,6vw,72px)">
+      <article class="rv">
+        <span class="circuit-tag">Rive gauche</span>
+        <h3>Médoc, châteaux &amp; grands crus</h3>
+        <p class="body">Une journée le long de la route des châteaux, entre trois appellations parmi les plus connues du Médoc.</p>
+        <ol class="circuit-steps">
+          <li><span class="cs-time">9h00</span><span>Prise en charge à l’hôtel, Bordeaux</span></li>
+          <li><span class="cs-time">9h45</span><span>Margaux — visite &amp; dégustation</span></li>
+          <li><span class="cs-time">12h15</span><span>Déjeuner au domaine ou à Pauillac</span></li>
+          <li><span class="cs-time">14h00</span><span>Pauillac — visite &amp; dégustation</span></li>
+          <li><span class="cs-time">16h15</span><span>Saint-Estèphe — dégustation</span></li>
+          <li><span class="cs-time">18h30</span><span>Retour à l’hôtel</span></li>
+        </ol>
+        <p class="circuit-meta">≈ 120 km · 3 domaines · journée complète</p>
+      </article>
+
+      <article class="rv" data-d="1">
+        <span class="circuit-tag">Rive droite</span>
+        <h3>Saint-Émilion &amp; Pomerol</h3>
+        <p class="body">Le Libournais et ses grands terroirs, sur un rythme plus resserré, à moins d’une heure de la ville.</p>
+        <ol class="circuit-steps">
+          <li><span class="cs-time">9h30</span><span>Prise en charge à l’hôtel, Bordeaux</span></li>
+          <li><span class="cs-time">10h15</span><span>Pomerol — visite &amp; dégustation</span></li>
+          <li><span class="cs-time">12h00</span><span>Saint-Émilion — déjeuner au village</span></li>
+          <li><span class="cs-time">14h00</span><span>Saint-Émilion — domaine &amp; dégustation</span></li>
+          <li><span class="cs-time">16h30</span><span>Retour à l’hôtel</span></li>
+        </ol>
+        <p class="circuit-meta">≈ 70 km · 2 domaines · demi-journée ou journée</p>
+      </article>
+
+      <article class="rv" data-d="2">
+        <span class="circuit-tag">Vers le sud</span>
+        <h3>Pessac-Léognan &amp; Sauternes</h3>
+        <p class="body">Des graves aux portes de Bordeaux jusqu’aux liquoreux du Sauternais, dans la brume du matin.</p>
+        <ol class="circuit-steps">
+          <li><span class="cs-time">9h00</span><span>Prise en charge à l’hôtel, Bordeaux</span></li>
+          <li><span class="cs-time">9h30</span><span>Pessac-Léognan — visite &amp; dégustation</span></li>
+          <li><span class="cs-time">12h00</span><span>Déjeuner en route vers le Sauternais</span></li>
+          <li><span class="cs-time">14h00</span><span>Sauternes — visite &amp; dégustation</span></li>
+          <li><span class="cs-time">17h00</span><span>Retour à l’hôtel</span></li>
+        </ol>
+        <p class="circuit-meta">≈ 100 km · 2 domaines · journée complète</p>
+      </article>
+    </div>
+
+    <p class="body rv" style="margin-top:clamp(28px,3.4vw,40px); max-width:60ch">
+      Ces trois circuits sont des points de départ : domaines, horaires et
+      rythme sont ajustés avec vous avant votre arrivée.
+    </p>
+
+    <!-- ===== Tableau comparatif : coût réel d'un circuit fait autrement =====
+         Estimations illustratives (carburant, péages, tarifs VTC en zone
+         viticole) : à vérifier et ajuster avec de vrais tarifs locaux avant
+         la mise en ligne. Ne pas afficher de chiffres non sourcés. -->
+    <div class="rv" style="margin-top:clamp(64px,8vw,100px)">
+      <p class="eyebrow" style="color:var(--paper-faint)">Un circuit, trois façons de le faire</p>
+      <h3 class="h-sub" style="margin-top:16px; max-width:28ch">Ce que coûte vraiment une journée dans le vignoble</h3>
+      <p class="body" style="margin-top:18px; max-width:60ch">
+        Prenons l’exemple du circuit Médoc ci-dessus : trois domaines, une
+        centaine de kilomètres. Voici ce qu’il coûte, selon la manière de
+        le faire.
+      </p>
+
+      <div class="table-scroll">
+        <table class="cmp">
+          <caption>
+            * Estimation indicative pour un circuit de type « Médoc » (≈ 120 km, 3 étapes). Les VTC en zone
+            viticole appliquent souvent une majoration de retour à vide, faute de course disponible pour
+            repartir du domaine suivant : grille à confirmer avec des tarifs locaux réels avant publication.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Sur la journée</th>
+              <th scope="col">En solo, votre véhicule</th>
+              <th scope="col">Un VTC différent à chaque étape</th>
+              <th scope="col" class="col-lx">Lincoln Luxury</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Conduite &amp; itinéraire</th>
+              <td>Vous conduisez, vous cherchez votre chemin entre les domaines.</td>
+              <td>Chaque chauffeur découvre l’itinéraire pour la première fois.</td>
+              <td class="col-lx">Un chauffeur qui connaît déjà les domaines et les routes du vignoble.</td>
+            </tr>
+            <tr>
+              <th scope="row">Carburant, péages, parking</th>
+              <td>≈ 25–35 € pour ≈ 120 km, plus le stationnement à chaque domaine.</td>
+              <td>Compris dans chaque course, mais facturé course par course.</td>
+              <td class="col-lx">Compris dans le forfait à la journée.</td>
+            </tr>
+            <tr>
+              <th scope="row">Coût émotionnel<br>(bouchons, stress, vigilance)</th>
+              <td>Élevé : route inconnue, vigilance requise même après une dégustation.</td>
+              <td>Variable : nouveau véhicule, nouveau chauffeur, parfois une attente au milieu des vignes.</td>
+              <td class="col-lx">Nul : vous ne conduisez pas, le chauffeur reste le même toute la journée.</td>
+            </tr>
+            <tr>
+              <th scope="row">Dégustation en toute sérénité</th>
+              <td>Limitée : quelqu’un doit rester sobre pour reprendre le volant.</td>
+              <td>Possible, mais à réexpliquer à un chauffeur différent à chaque étape.</td>
+              <td class="col-lx">Entière : personne n’a à se soucier du retour.</td>
+            </tr>
+            <tr>
+              <th scope="row">Réservations &amp; attentes</th>
+              <td>Aucune réservation, mais aucune marge en cas d’imprévu.</td>
+              <td>4 à 6 réservations dans la journée, autant d’attentes en zone rurale.</td>
+              <td class="col-lx">Une seule prise en charge, le matin, à l’hôtel.</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row">Budget estimé, pour la journée*</th>
+              <td>≈ 25–35 € de frais directs, hors coût du temps et de la vigilance.</td>
+              <td>≈ 90–150 € par trajet en zone viticole, soit ≈ 400 à 700 € pour 4 à 6 étapes.</td>
+              <td class="col-lx">Un tarif forfaitaire à la journée, sur devis. Un seul prix, aucune surprise.</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <p style="margin-top:30px"><a class="link-under" href="index.html#contact">Demander un devis pour votre circuit</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 03 — TRANSPORT PRIVÉ ===================== -->
 <section class="sec sec--paper-2" id="transport" aria-labelledby="t-transport">
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <p class="eyebrow rv"><span class="num">02</span>Chauffeur privé</p>
+        <p class="eyebrow rv"><span class="num">03</span>Chauffeur privé</p>
         <h2 class="h-section rv" data-d="1" id="t-transport" style="margin-top:22px">Transport privé, à l’heure et sans un mot</h2>
       </div>
       <p class="lede side rv" data-d="2">
@@ -1167,12 +1488,12 @@ form{ display:grid; gap:22px; }
   </div>
 </section>
 
-<!-- ===================== 03 — LA CLASSE S ===================== -->
+<!-- ===================== 04 — LA CLASSE S ===================== -->
 <section class="sec sec--deep" id="classe-s" aria-labelledby="t-classes">
   <div class="wrap">
     <div class="grid-2 wide top">
       <div>
-        <p class="eyebrow rv"><span class="num">03</span>La signature</p>
+        <p class="eyebrow rv"><span class="num">04</span>La signature</p>
         <h2 class="h-section rv" data-d="1" id="t-classes" style="margin-top:22px">Mercedes Classe S.<br>La seule à Bordeaux.</h2>
         <p class="lede rv" data-d="2" style="margin-top:28px; max-width:54ch">
           À Bordeaux, le transport de luxe se fait en Classe E. Nous avons fait un
@@ -1222,12 +1543,12 @@ form{ display:grid; gap:22px; }
   </div>
 </section>
 
-<!-- ===================== 04 — DISCRÉTION ===================== -->
+<!-- ===================== 05 — DISCRÉTION ===================== -->
 <section class="sec" id="discretion" aria-labelledby="t-disc">
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <p class="eyebrow rv"><span class="num">04</span>La clientèle</p>
+        <p class="eyebrow rv"><span class="num">05</span>La clientèle</p>
         <h2 class="h-section rv" data-d="1" id="t-disc" style="margin-top:22px">Ce que nous ne dirons jamais</h2>
       </div>
       <p class="lede side rv" data-d="2">
@@ -1261,12 +1582,12 @@ form{ display:grid; gap:22px; }
   </div>
 </section>
 
-<!-- ===================== 05 — BORDEAUX ===================== -->
+<!-- ===================== 06 — BORDEAUX ===================== -->
 <section class="sec sec--paper" id="bordeaux" aria-labelledby="t-bdx">
   <div class="wrap">
     <div class="grid-2 wide top">
       <div>
-        <p class="eyebrow rv"><span class="num">05</span>Le territoire</p>
+        <p class="eyebrow rv"><span class="num">06</span>Le territoire</p>
         <h2 class="h-section rv" data-d="1" id="t-bdx" style="margin-top:22px">Bordeaux et son vignoble</h2>
         <p class="lede rv" data-d="2" style="margin-top:28px; max-width:52ch">
           La ville d’un côté, les appellations de l’autre, la Garonne entre les deux.
@@ -1301,7 +1622,7 @@ form{ display:grid; gap:22px; }
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <p class="eyebrow rv"><span class="num">06</span>Le déroulé</p>
+        <p class="eyebrow rv"><span class="num">07</span>Le déroulé</p>
         <h2 class="h-section rv" data-d="1" id="t-der" style="margin-top:22px">Comment cela se passe</h2>
       </div>
       <p class="lede side rv" data-d="2">
@@ -1326,68 +1647,6 @@ form{ display:grid; gap:22px; }
         <p class="body">Le jour venu, la Classe S est devant votre hôtel. Nous restons avec vous jusqu’au soir, et le programme peut encore changer.</p>
       </article>
     </div>
-  </div>
-</section>
-
-<!-- ===================== 07 — AVIS =====================
-     Les trois avis ci-dessous sont des avis de DÉMONSTRATION.
-     Ils doivent être remplacés par de vrais avis clients, obtenus avec
-     l’accord des personnes concernées, avant la mise en ligne.
-     Aucun balisage schema.org Review n’est posé ici : il ne doit être
-     ajouté que lorsque les avis sont authentiques et vérifiables.
-     ======================================================== -->
-<section class="sec sec--paper-2" id="avis" aria-labelledby="t-avis">
-  <div class="wrap">
-    <div class="sec-head">
-      <div>
-        <p class="eyebrow rv"><span class="num">07</span>Les retours</p>
-        <h2 class="h-section rv" data-d="1" id="t-avis" style="margin-top:22px">Ils nous font confiance</h2>
-      </div>
-      <p class="lede side rv" data-d="2">
-        Nos passagers ne sont pas nommés et ne le seront jamais. Ce qu’ils
-        acceptent de nous laisser dire tient en quelques lignes.
-      </p>
-    </div>
-
-    <div class="avis">
-      <!-- AVIS DÉMO à remplacer par de vrais avis avant mise en ligne -->
-      <blockquote class="rv">
-        <p class="mark" aria-hidden="true">&laquo;</p>
-        <p lang="en">The car was waiting outside the hotel every morning, and each day was
-        built around what we actually wanted to taste. We never looked at a map,
-        and we never looked at the time.</p>
-        <footer>
-          <b>Un couple venu de Californie</b>
-          Séjour de plusieurs jours dans le vignoble
-        </footer>
-      </blockquote>
-
-      <!-- AVIS DÉMO à remplacer par de vrais avis avant mise en ligne -->
-      <blockquote class="rv" data-d="1">
-        <p class="mark" aria-hidden="true">&laquo;</p>
-        <p>Nous cherchions un chauffeur, nous avons trouvé quelqu’un qui connaît
-        les domaines et qui sait aussi se taire. Le rythme était juste, du premier
-        rendez-vous au retour le soir.</p>
-        <footer>
-          <b>Un couple parisien</b>
-          Deux journées entre rive droite et rive gauche
-        </footer>
-      </blockquote>
-
-      <!-- AVIS DÉMO à remplacer par de vrais avis avant mise en ligne -->
-      <blockquote class="rv" data-d="2">
-        <p class="mark" aria-hidden="true">&laquo;</p>
-        <p>Je confie mes clients étrangers à Lincoln Luxury quand la journée doit
-        être irréprochable : ponctualité, discrétion, et une voiture qui met tout
-        le monde d’accord avant même d’ouvrir la portière.</p>
-        <footer>
-          <b>Un caviste, Bordeaux centre</b>
-          Accompagnement de clients de passage
-        </footer>
-      </blockquote>
-    </div>
-
-    <p class="avis-note rv">Avis de démonstration &mdash; à remplacer avant la mise en ligne</p>
   </div>
 </section>
 
