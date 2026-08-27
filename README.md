@@ -30,6 +30,26 @@ ressources externes sont les polices, qui sont auto-hébergées dans
 Le sélecteur de langue est dans l'en-tête (FR / EN / ES / 中文) ; les balises
 `hreflang` sont posées sur les 4 pages pour le référencement multilingue.
 
+## Contenu de la page
+
+Les quatre langues suivent exactement la même structure, section par
+section :
+
+- **Témoignages** (« Ils nous font confiance ») — placés avant le 01, non
+  numérotés : la confiance se donne avant l'argumentaire.
+- **01 — Le service phare** : wine tours dans le vignoble bordelais.
+- **02 — Circuits & itinéraires** : trois exemples de journées avec étapes
+  horodatées, une carte schématique en SVG (Médoc, Libournais, Sauternes &
+  Graves) et un tableau comparatif du coût réel d'une journée dans le
+  vignoble (en solo, en VTC à la carte, avec Lincoln Luxury).
+- **03 — Transport privé** : transferts, mise à disposition, discrétion.
+- **04 — La Classe S** : la signature du service.
+- **05 — La clientèle** : discrétion et confidentialité.
+- **06 — Bordeaux et son vignoble** : le territoire et les appellations.
+- **07 — Le déroulé** : comment se passe une réservation.
+- **08 — Questions** (FAQ) et **09 — Contact** (formulaire de réservation).
+- Pied de page : mentions légales, confidentialité, crédits photo.
+
 ## Mode clair / sombre
 
 Le site est sombre par défaut. Un bouton dans l'en-tête (à côté du
@@ -39,6 +59,33 @@ crème déjà utilisée par certaines sections. Le choix est mémorisé
 (`prefers-color-scheme`) est respectée au premier chargement. Le hero
 (photo de nuit) garde volontairement ses couleurs sombres dans les deux
 thèmes, le temps que l'en-tête ne soit pas encore "collée" en haut de page.
+
+## À compléter avant la mise en ligne
+
+Le contenu ci-dessous est volontairement signalé en placeholder (dans le
+HTML et, pour certains, visuellement sur la page) et doit être remplacé
+avant publication :
+
+- **Coordonnées** : numéro de téléphone (`07 XX XX XX XX`) et adresse e-mail
+  dans l'en-tête mobile, la section Contact, le pied de page et les deux
+  blocs JSON-LD, sur les 4 langues.
+- **Avis clients** : les trois témoignages sont des avis de démonstration
+  (section « Ils nous font confiance ») — à remplacer par de vrais avis,
+  obtenus avec l'accord des personnes concernées, avant d'ajouter un
+  balisage schema.org Review.
+- **Tableau comparatif des coûts** (section 02) : les montants (carburant,
+  tarifs VTC en zone viticole...) sont des estimations indicatives, à
+  vérifier avec de vrais tarifs locaux avant publication.
+- **Mentions légales** : raison sociale, SIREN, capacité de transport,
+  hébergeur — à compléter dans le pied de page des 4 langues.
+- **Image de partage** (`og:image`) : pointe actuellement vers
+  `og.jpg`, à créer (1200×630) et déposer à la racine.
+- **Nom de domaine** : les URLs canoniques, `hreflang` et JSON-LD
+  supposent `https://www.lincolnluxury.fr/` — à ajuster si le domaine
+  final diffère.
+- **Photos** : les photographies actuelles viennent de Wikimedia Commons
+  (voir Crédits photo ci-dessous) ; à remplacer de préférence par des
+  photos du vignoble et du véhicule réalisées pour Lincoln Luxury.
 
 ## Développement local
 
