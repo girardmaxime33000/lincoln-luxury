@@ -151,6 +151,18 @@ function testerNotification() {
  * les numéros de ligne ci-dessous.
  */
 function setupDashboard() {
+  try {
+    setupDashboard_();
+  } catch (err) {
+    // Le message d'erreur générique remonté par l'éditeur Apps Script
+    // ("An unknown error has occurred") ne dit pas où ça plante : on logue
+    // ici le détail exact pour qu'il apparaisse dans le journal d'exécution.
+    console.error("setupDashboard a échoué : " + err.message + "\n" + err.stack);
+    throw err;
+  }
+}
+
+function setupDashboard_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var src = "'" + LEADS_SHEET_NAME + "'";
   var name = "Dashboard";
