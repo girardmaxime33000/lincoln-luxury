@@ -34,6 +34,11 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
+  // Diagnostic temporaire : confirme dans le journal d'exécution le nom
+  // exact de l'onglet réellement ciblé par cette exécution. À retirer une
+  // fois le problème de ligne mal placée résolu.
+  console.log("doPost écrit dans l'onglet : " + sheet.getName() + " (spreadsheet ID : " + SpreadsheetApp.getActiveSpreadsheet().getId() + ")");
+
   var headers = [
     "Date", "Nom", "Courriel", "Téléphone", "Prestation",
     "Début", "Fin", "Nombre de jours", "Passagers", "Message", "Langue", "Page"
