@@ -9,10 +9,11 @@
  * README à la racine du dépôt.
  */
 
-// Adresse qui reçoit une notification à chaque nouvelle demande.
+// Adresse(s) qui reçoivent une notification à chaque nouvelle demande.
+// Plusieurs adresses peuvent être séparées par des virgules.
 // Laisser vide ("") pour désactiver l'envoi d'e-mail (seule la feuille
 // Google Sheets sera alors mise à jour).
-var NOTIFY_EMAIL = "girard.maxime33@gmail.com";
+var NOTIFY_EMAIL = "girard.maxime33@gmail.com,driver.lincoln-luxury@outlook.com";
 
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();

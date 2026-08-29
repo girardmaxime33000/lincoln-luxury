@@ -125,12 +125,13 @@ déploiement Apps Script.
    `URL_DU_DEPLOIEMENT_APPS_SCRIPT_A_COMPLETER` et remplace par l'URL
    copiée à l'étape précédente.
 6. `NOTIFY_EMAIL` est déjà renseignée dans `Code.gs` avec
-   `girard.maxime33@gmail.com` — c'est cette adresse qui recevra une
-   notification à chaque demande. Change-la directement dans l'éditeur
-   Apps Script si besoin (puis **Gérer les déploiements → modifier →
-   Nouvelle version**, voir plus bas — cela ne change pas l'URL). Laisse
-   `NOTIFY_EMAIL = ""` pour désactiver les notifications par e-mail (seule
-   la feuille Google Sheets sera alors mise à jour).
+   `girard.maxime33@gmail.com,driver.lincoln-luxury@outlook.com` — ce sont
+   ces adresses (séparées par une virgule) qui recevront une notification à
+   chaque demande. Change-les directement dans l'éditeur Apps Script si
+   besoin (puis **Gérer les déploiements → modifier → Nouvelle version**,
+   voir plus bas — cela ne change pas l'URL). Laisse `NOTIFY_EMAIL = ""`
+   pour désactiver les notifications par e-mail (seule la feuille Google
+   Sheets sera alors mise à jour).
 
 Tant que l'URL de déploiement n'est pas renseignée dans les fichiers HTML,
 le formulaire refuse l'envoi et affiche un message expliquant qu'il n'est
