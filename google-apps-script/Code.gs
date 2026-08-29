@@ -131,10 +131,12 @@ function testerNotification() {
  * page, évolution mensuelle et dernières demandes.
  *
  * Mise en page pensée pour une consultation sur mobile : tout est empilé
- * verticalement dans les deux seules colonnes visibles (A et B) — aucun
- * scroll horizontal nécessaire dans l'appli Google Sheets. Les colonnes
- * C à L sont masquées ; elles ne servent que de zone technique pour la
- * carte "dernières demandes" (voir plus bas) et ne s'affichent jamais.
+ * verticalement dans la seule colonne visible (A), sans aucune cellule
+ * fusionnée — aucun scroll horizontal nécessaire dans l'appli Google
+ * Sheets. Les colonnes B à N sont masquées ; elles ne servent que de zone
+ * de calcul interne (résultats bruts des QUERY) utilisée pour composer le
+ * texte affiché en colonne A (ex. "🔹 Aéroport — 4") et ne s'affichent
+ * jamais.
  *
  * À lancer une seule fois manuellement depuis l'éditeur Apps Script
  * (sélectionner "setupDashboard" dans le menu déroulant à côté du bouton
@@ -143,12 +145,12 @@ function testerNotification() {
  * Google Sheets, relancer la fonction l'écrase et le régénère à l'identique.
  *
  * Si tu renommes l'onglet des demandes, mets à jour LEADS_SHEET_NAME en
- * haut de ce fichier avant de relancer setupDashboard. Les sections sont
- * espacées par des marges fixes généreuses (10 à 15 lignes) : si un jour
- * une section affiche plus de lignes que sa marge (beaucoup plus de types
- * de prestation, par ex.), une erreur "résultat du tableau non développé"
- * apparaît sur la formule concernée — il suffit alors d'espacer davantage
- * les numéros de ligne ci-dessous.
+ * haut de ce fichier avant de relancer setupDashboard. Chaque section a un
+ * budget de lignes fixe (6 à 15 selon la section) : si elle affiche plus
+ * de lignes que son budget (beaucoup plus de types de prestation, par
+ * ex.), les dernières manquent simplement à l'affichage — augmente alors
+ * le paramètre `budget` de l'appel `breakdownBlock_` correspondant, et
+ * décale les sections suivantes d'autant.
  */
 function setupDashboard() {
   try {
