@@ -988,6 +988,10 @@ form{ display:grid; gap:22px; }
   background:var(--gold); transform:rotate(45deg);
 }
 
+/* ---------- reCAPTCHA v3 : badge Google masqué, mention légale affichée
+   à la place (autorisé par Google à condition de garder cette mention) ---------- */
+.grecaptcha-badge{ visibility:hidden !important; }
+
 /* ---------- simulateur de devis : radios/case à cocher inline + encart estimation ---------- */
 .radio-group{ display:flex; gap:24px; flex-wrap:wrap; padding-top:2px; }
 .field label.check-inline{
@@ -2065,6 +2069,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <p class="form-note">Response within twenty-four business hours.</p>
           </div>
           <p class="form-note" id="form-error" role="alert"></p>
+          <p class="form-note" id="recaptcha-note" hidden>This site is protected by reCAPTCHA and the Google
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" style="text-decoration:underline">Privacy Policy</a> and
+            <a href="https://policies.google.com/terms" target="_blank" rel="noopener" style="text-decoration:underline">Terms of Service</a> apply.</p>
         </form>
 
         <!-- confirmation shown in place of the form -->
@@ -2343,6 +2350,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   /* Google Apps Script deployment URL (see README, "Form -> Google Sheets"
      section); submission is blocked until this is filled in. */
   var GOOGLE_SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbySWyMu-21DieE9tYCfceUOyO-_ZhuvzpyLWwMyFHGf1ZZj3JAcHhV7Gez2_mrayzxO/exec";
+
+  /* reCAPTCHA v3 (invisible, no checkbox): see the README, "reCAPTCHA"
+     section. As long as RECAPTCHA_SITE_KEY is left blank, the check is
+     simply skipped and the form works exactly as before. The Google
+     script is only loaded once the key has been filled in. */
+  var RECAPTCHA_SITE_KEY = "RECAPTCHA_SITE_KEY_A_COMPLETER";
+  var RECAPTCHA_CONFIGURED = RECAPTCHA_SITE_KEY.indexOf("A_COMPLETER") === -1;
+  if (RECAPTCHA_CONFIGURED) {
+    var recaptchaNote = document.getElementById("recaptcha-note");
+    if (recaptchaNote) { recaptchaNote.hidden = false; }
+    var recaptchaScript = document.createElement("script");
+    recaptchaScript.src = "https://www.google.com/recaptcha/api.js?render=" + RECAPTCHA_SITE_KEY;
+    document.head.appendChild(recaptchaScript);
+  }
+
   var form = document.getElementById("form");
   var sent = document.getElementById("sent");
   var again = document.getElementById("again");
@@ -2624,29 +2646,60 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       message: document.getElementById("f-msg").value.trim(),
       lang: document.documentElement.lang || "en",
       page: window.location.href,
-      submittedAt: new Date().toISOString()
+      submittedAt: new Date().toISOString(),
+      recaptchaToken: ""
     };
 
-    /* Submit to Google Sheets via a Google Apps Script deployment.
-       "no-cors" mode + text/plain Content-Type avoids the CORS preflight
-       Apps Script doesn't handle; the response is therefore opaque (its
-       status can't be read), only a network failure reaches .catch(). */
-    fetch(GOOGLE_SHEETS_ENDPOINT, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    }).then(function () {
-      submit.dataset.loading = "false";
-      submitLabel.textContent = "Send request";
-      form.hidden = true;
-      sent.hidden = false;
-      sent.focus();
-    }).catch(function () {
-      submit.dataset.loading = "false";
-      submitLabel.textContent = "Send request";
-      formError.textContent = "The submission failed. Please try again or contact us directly.";
-    });
+    function sendPayload() {
+      /* Submit to Google Sheets via a Google Apps Script deployment.
+         "no-cors" mode + text/plain Content-Type avoids the CORS preflight
+         Apps Script doesn't handle; the response is therefore opaque (its
+         status can't be read), only a network failure reaches .catch(). */
+      fetch(GOOGLE_SHEETS_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }).then(function () {
+        submit.dataset.loading = "false";
+        submitLabel.textContent = "Send request";
+        form.hidden = true;
+        sent.hidden = false;
+        sent.focus();
+      }).catch(function () {
+        submit.dataset.loading = "false";
+        submitLabel.textContent = "Send request";
+        formError.textContent = "The submission failed. Please try again or contact us directly.";
+      });
+    }
+
+    /* reCAPTCHA v3 token obtained in the background, with no interaction
+       at all. Always "best effort": if the Google script is blocked or
+       doesn't respond fast enough (6s), the request is still sent without
+       a token rather than risk losing a genuine enquiry — the
+       server-side check (Code.gs) only ever rejects a token whose score is
+       explicitly bad, never a missing token. */
+    var recaptchaSettled = false;
+    function proceedWithToken(token) {
+      if (recaptchaSettled) { return; }
+      recaptchaSettled = true;
+      payload.recaptchaToken = token || "";
+      sendPayload();
+    }
+    if (RECAPTCHA_CONFIGURED && typeof grecaptcha !== "undefined") {
+      window.setTimeout(function () { proceedWithToken(""); }, 6000);
+      try {
+        grecaptcha.ready(function () {
+          grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: "submit" })
+            .then(proceedWithToken)
+            .catch(function () { proceedWithToken(""); });
+        });
+      } catch (err) {
+        proceedWithToken("");
+      }
+    } else {
+      proceedWithToken("");
+    }
   });
 
   again.addEventListener("click", function () {

@@ -987,6 +987,10 @@ form{ display:grid; gap:22px; }
   background:var(--gold); transform:rotate(45deg);
 }
 
+/* ---------- reCAPTCHA v3 : badge Google masqué, mention légale affichée
+   à la place (autorisé par Google à condition de garder cette mention) ---------- */
+.grecaptcha-badge{ visibility:hidden !important; }
+
 /* ---------- simulateur de devis : radios/case à cocher inline + encart estimation ---------- */
 .radio-group{ display:flex; gap:24px; flex-wrap:wrap; padding-top:2px; }
 .field label.check-inline{
@@ -2053,6 +2057,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <p class="form-note">我们将在24个工作小时内回复。</p>
           </div>
           <p class="form-note" id="form-error" role="alert"></p>
+          <p class="form-note" id="recaptcha-note" hidden>本网站受 reCAPTCHA 保护，适用 Google 的
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" style="text-decoration:underline">隐私权政策</a>与
+            <a href="https://policies.google.com/terms" target="_blank" rel="noopener" style="text-decoration:underline">服务条款</a>。</p>
         </form>
 
         <!-- 提交成功后替代表单显示的确认信息 -->
@@ -2328,6 +2335,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   /* Google Apps Script 部署网址（见 README「表单 -> Google 表格」一节）；
      未填写前，表单提交会被拦截。 */
   var GOOGLE_SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbySWyMu-21DieE9tYCfceUOyO-_ZhuvzpyLWwMyFHGf1ZZj3JAcHhV7Gez2_mrayzxO/exec";
+
+  /* reCAPTCHA v3（隐形，无需勾选框）：详见 README 的「reCAPTCHA」章节。
+     只要 RECAPTCHA_SITE_KEY 未填写，校验就会被直接跳过，表单的行为与
+     之前完全一致。Google 脚本只有在填写了密钥之后才会被加载。 */
+  var RECAPTCHA_SITE_KEY = "RECAPTCHA_SITE_KEY_A_COMPLETER";
+  var RECAPTCHA_CONFIGURED = RECAPTCHA_SITE_KEY.indexOf("A_COMPLETER") === -1;
+  if (RECAPTCHA_CONFIGURED) {
+    var recaptchaNote = document.getElementById("recaptcha-note");
+    if (recaptchaNote) { recaptchaNote.hidden = false; }
+    var recaptchaScript = document.createElement("script");
+    recaptchaScript.src = "https://www.google.com/recaptcha/api.js?render=" + RECAPTCHA_SITE_KEY;
+    document.head.appendChild(recaptchaScript);
+  }
+
   var form = document.getElementById("form");
   var sent = document.getElementById("sent");
   var again = document.getElementById("again");
@@ -2609,29 +2630,59 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       message: document.getElementById("f-msg").value.trim(),
       lang: document.documentElement.lang || "zh",
       page: window.location.href,
-      submittedAt: new Date().toISOString()
+      submittedAt: new Date().toISOString(),
+      recaptchaToken: ""
     };
 
-    /* 通过 Google Apps Script 部署提交到 Google 表格。
-       使用 "no-cors" 模式 + text/plain 的 Content-Type，避免 Apps Script
-       无法处理的 CORS 预检请求；因此响应是不透明的（无法读取其状态），
-       只有网络请求失败才会进入 .catch()。 */
-    fetch(GOOGLE_SHEETS_ENDPOINT, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    }).then(function () {
-      submit.dataset.loading = "false";
-      submitLabel.textContent = "发送需求";
-      form.hidden = true;
-      sent.hidden = false;
-      sent.focus();
-    }).catch(function () {
-      submit.dataset.loading = "false";
-      submitLabel.textContent = "发送需求";
-      formError.textContent = "发送失败，请重试或直接联系我们。";
-    });
+    function sendPayload() {
+      /* 通过 Google Apps Script 部署提交到 Google 表格。
+         使用 "no-cors" 模式 + text/plain 的 Content-Type，避免 Apps Script
+         无法处理的 CORS 预检请求；因此响应是不透明的（无法读取其状态），
+         只有网络请求失败才会进入 .catch()。 */
+      fetch(GOOGLE_SHEETS_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }).then(function () {
+        submit.dataset.loading = "false";
+        submitLabel.textContent = "发送需求";
+        form.hidden = true;
+        sent.hidden = false;
+        sent.focus();
+      }).catch(function () {
+        submit.dataset.loading = "false";
+        submitLabel.textContent = "发送需求";
+        formError.textContent = "发送失败，请重试或直接联系我们。";
+      });
+    }
+
+    /* reCAPTCHA v3 的验证令牌在后台自动获取，无需任何交互。始终采用
+       「尽力而为」策略：如果 Google 脚本被拦截或未能在 6 秒内响应，
+       请求仍会在没有令牌的情况下发送，以避免误失一条真实的咨询——
+       服务器端（Code.gs）的校验只会拒绝明确评分过低的令牌，绝不会
+       仅因缺少令牌而拒绝。 */
+    var recaptchaSettled = false;
+    function proceedWithToken(token) {
+      if (recaptchaSettled) { return; }
+      recaptchaSettled = true;
+      payload.recaptchaToken = token || "";
+      sendPayload();
+    }
+    if (RECAPTCHA_CONFIGURED && typeof grecaptcha !== "undefined") {
+      window.setTimeout(function () { proceedWithToken(""); }, 6000);
+      try {
+        grecaptcha.ready(function () {
+          grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: "submit" })
+            .then(proceedWithToken)
+            .catch(function () { proceedWithToken(""); });
+        });
+      } catch (err) {
+        proceedWithToken("");
+      }
+    } else {
+      proceedWithToken("");
+    }
   });
 
   again.addEventListener("click", function () {
