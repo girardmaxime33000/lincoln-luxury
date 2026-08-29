@@ -17,7 +17,7 @@ var NOTIFY_EMAIL = "girard.maxime33@gmail.com,driver.lincoln-luxury@outlook.com"
 
 // Nom de l'onglet qui reçoit les lignes du formulaire (utilisé par
 // setupDashboard ci-dessous pour construire les formules du dashboard).
-var LEADS_SHEET_NAME = "reporting";
+var LEADS_SHEET_NAME = "Sheet1";
 
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();

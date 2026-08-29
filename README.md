@@ -207,7 +207,7 @@ uniquement de zone technique interne à ces cartes.
 Pour le générer (ou le régénérer) :
 
 1. Vérifie que `LEADS_SHEET_NAME` (en haut de `Code.gs`) correspond bien au
-   nom de l'onglet qui reçoit les lignes du formulaire (`reporting` par
+   nom de l'onglet qui reçoit les lignes du formulaire (`Sheet1` par
    défaut) — renomme-le dans le script si tu as renommé l'onglet.
 2. Dans l'éditeur Apps Script, ouvre le menu déroulant à côté du bouton
    **Exécuter** et choisis la fonction **`setupDashboard`**.
