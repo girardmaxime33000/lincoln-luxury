@@ -364,24 +364,22 @@ p{ margin:0; text-wrap:pretty; }
 .lang-switch a[aria-current="true"]{ color:var(--gold-hi); }
 .lang-switch .sep{ color:var(--line); font-size:10px; }
 
-/* interrupteur clair / sombre : un petit rail, un loset doré qui glisse,
-   le même motif que les puces .gold-dot utilisées ailleurs sur le site */
+/* interrupteur clair / sombre : bouton rond, icône soleil (mode clair actif)
+   ou lune (mode sombre actif) selon le thème courant */
 .theme-toggle{
   flex:none; position:relative;
-  width:40px; height:21px; margin-left:4px; padding:0;
-  border:1px solid var(--line); background:transparent;
+  width:34px; height:34px; margin-left:4px; padding:0;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--line); border-radius:999px; background:transparent;
+  color:var(--paper-dim);
   cursor:pointer;
-  transition:border-color .4s var(--ease);
+  transition:border-color .4s var(--ease), color .4s var(--ease);
 }
-.theme-toggle:hover{ border-color:var(--gold); }
-.theme-toggle-thumb{
-  position:absolute; top:3px; left:3px;
-  width:13px; height:13px;
-  background:var(--gold);
-  transform:translateX(0) rotate(45deg);
-  transition:transform .45s var(--ease-soft), background-color .4s var(--ease);
-}
-[data-theme="dark"] .theme-toggle-thumb{ transform:translateX(18px) rotate(45deg); }
+.theme-toggle:hover{ border-color:var(--gold); color:var(--gold); }
+.theme-icon{ width:17px; height:17px; }
+.theme-icon--moon{ display:none; }
+[data-theme="dark"] .theme-icon--sun{ display:none; }
+[data-theme="dark"] .theme-icon--moon{ display:block; }
 
 /* bouton hamburger → croix */
 .burger{
@@ -1194,10 +1192,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </nav>
 
     <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" aria-label="Passer en mode sombre">
-      <span class="theme-toggle-thumb" aria-hidden="true"></span>
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.2"/>
+        <path d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/>
+      </svg>
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"/>
+      </svg>
     </button>
 
-    <a class="btn head-cta" href="index.html#contact"><span>Réserver</span><span class="arrow" aria-hidden="true">&rarr;</span></a>
+    <a class="btn btn--solid head-cta" href="index.html#contact"><span>Réserver</span><span class="arrow" aria-hidden="true">&rarr;</span></a>
 
     <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Ouvrir le menu">
       <span></span><span></span>
