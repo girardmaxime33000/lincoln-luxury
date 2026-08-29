@@ -19,6 +19,17 @@ var NOTIFY_EMAIL = "girard.maxime33@gmail.com,driver.lincoln-luxury@outlook.com"
 // setupDashboard ci-dessous pour construire les formules du dashboard).
 var LEADS_SHEET_NAME = "Sheet1";
 
+// Clé secrète reCAPTCHA v3 (https://www.google.com/recaptcha/admin, à créer
+// en même temps que la clé "de site" utilisée dans les 4 fichiers HTML).
+// Laisser vide ("") pour désactiver la vérification anti-spam : le
+// formulaire fonctionne alors exactement comme avant, sans filtrage.
+var RECAPTCHA_SECRET_KEY = "RECAPTCHA_SECRET_KEY_A_COMPLETER";
+
+// Score minimal (0 = très probablement un robot, 1 = très probablement un
+// humain) en dessous duquel une soumission est ignorée. 0.5 est la valeur
+// recommandée par Google.
+var RECAPTCHA_MIN_SCORE = 0.5;
+
 function doPost(e) {
   // Cible explicitement l'onglet des leads par son nom : getActiveSheet()
   // renvoie l'onglet actuellement sélectionné dans Google Sheets (celui
@@ -60,6 +71,25 @@ function doPost(e) {
     return ContentService
       .createTextOutput(JSON.stringify({ result: "success" }))
       .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Filtrage anti-spam reCAPTCHA v3 (facultatif, voir RECAPTCHA_SECRET_KEY
+  // ci-dessus). Une soumission dont le jeton est explicitement mauvais
+  // (score trop faible, action inattendue) n'est ni enregistrée ni
+  // notifiée ; la requête répond quand même "success" (le mode no-cors
+  // empêche de toute façon le site de lire la réponse), pour ne rien
+  // laisser deviner à un robot. À l'inverse, un jeton absent ou une erreur
+  // de vérification n'entraîne JAMAIS de rejet : on préfère toujours
+  // garder une vraie demande plutôt que la perdre par excès de prudence
+  // (bloqueur de publicités, script Google indisponible, etc.).
+  if (RECAPTCHA_SECRET_KEY && RECAPTCHA_SECRET_KEY.indexOf("A_COMPLETER") === -1 && data.recaptchaToken) {
+    var recaptcha = verifyRecaptcha_(data.recaptchaToken);
+    if (!recaptcha.ok) {
+      console.error("Soumission ignorée (reCAPTCHA) : " + recaptcha.reason);
+      return ContentService
+        .createTextOutput(JSON.stringify({ result: "success" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
   }
 
   // "Nombre de jours" est calculé ici (dates inclusives : du 12 au 12 = 1
@@ -255,6 +285,38 @@ function escapeHtml_(v) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+/**
+ * Interroge l'API de vérification reCAPTCHA v3 de Google avec le jeton
+ * envoyé par le formulaire. Renvoie { ok: true } si la vérification est
+ * concluante (score suffisant, action attendue), { ok: false, reason }
+ * sinon. En cas d'erreur réseau côté Google (service indisponible, quota),
+ * renvoie { ok: true } par prudence : on ne veut jamais perdre une vraie
+ * demande à cause d'un problème indépendant du visiteur.
+ */
+function verifyRecaptcha_(token) {
+  try {
+    var response = UrlFetchApp.fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "post",
+      payload: { secret: RECAPTCHA_SECRET_KEY, response: token },
+      muteHttpExceptions: true
+    });
+    var result = JSON.parse(response.getContentText());
+    if (!result.success) {
+      return { ok: false, reason: "échec de vérification (" + JSON.stringify(result["error-codes"] || []) + ")" };
+    }
+    if (result.action && result.action !== "submit") {
+      return { ok: false, reason: "action inattendue (" + result.action + ")" };
+    }
+    if (typeof result.score === "number" && result.score < RECAPTCHA_MIN_SCORE) {
+      return { ok: false, reason: "score trop faible (" + result.score + ")" };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("Vérification reCAPTCHA indisponible, demande acceptée par prudence : " + err);
+    return { ok: true };
+  }
 }
 
 /**

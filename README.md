@@ -90,6 +90,8 @@ artificielle) :
   de page et barre d'appel à l'action fixe. Il suffira de remplacer le
   placeholder (dans le `href="tel:"` et dans le texte affiché) une fois le
   vrai numéro connu pour que ces trois emplacements fonctionnent.
+- **Protection anti-spam** (reCAPTCHA v3, invisible) : voir la section
+  « reCAPTCHA » ci-dessous.
 
 ## Référencement, suivi & accessibilité
 
@@ -142,6 +144,10 @@ avant publication :
   Google Sheets via Google Apps Script, mais l'URL de déploiement doit être
   renseignée avant mise en ligne — voir la section « Formulaire → Google
   Sheets » ci-dessous.
+- **reCAPTCHA** (facultatif) : sans les clés `RECAPTCHA_SITE_KEY` /
+  `RECAPTCHA_SECRET_KEY`, le formulaire reste utilisable mais sans aucun
+  filtrage anti-spam — voir la section « reCAPTCHA » ci-dessous pour
+  l'activer.
 - **Avis clients** : les trois témoignages sont des avis de démonstration
   (section « Ils nous font confiance ») — à remplacer par de vrais avis,
   obtenus avec l'accord des personnes concernées, avant d'ajouter un
@@ -202,6 +208,46 @@ Tant que l'URL de déploiement n'est pas renseignée dans les fichiers HTML,
 le formulaire refuse l'envoi et affiche un message expliquant qu'il n'est
 pas encore connecté (visible en local, donc facile à repérer avant mise en
 ligne).
+
+### reCAPTCHA (protection anti-spam)
+
+Le formulaire peut être protégé par **reCAPTCHA v3 de Google** : invisible,
+sans case à cocher ni interruption pour le visiteur — Google calcule un
+score de confiance en arrière-plan à partir du comportement de navigation.
+Tant qu'il n'est pas configuré, le formulaire fonctionne exactement comme
+avant (aucun filtrage).
+
+1. Crée un site sur la [console reCAPTCHA](https://www.google.com/recaptcha/admin/create) :
+   - Type : **reCAPTCHA v3**.
+   - Domaines : `lincoln-luxury.fr` (et `localhost` si tu veux tester en
+     local).
+   - Valide : Google fournit une **clé de site** (publique) et une **clé
+     secrète** (privée).
+2. Colle la **clé de site** dans la constante `RECAPTCHA_SITE_KEY` du
+   script inline, **dans les 4 fichiers HTML** — cherche
+   `RECAPTCHA_SITE_KEY_A_COMPLETER` et remplace par la clé copiée.
+3. Colle la **clé secrète** dans la constante `RECAPTCHA_SECRET_KEY` en
+   haut de `google-apps-script/Code.gs` — cherche
+   `RECAPTCHA_SECRET_KEY_A_COMPLETER` et remplace par la clé copiée, puis
+   redéploie une **Nouvelle version** (voir plus haut).
+4. Une fois les deux clés renseignées, une mention légale (« Ce site est
+   protégé par reCAPTCHA... ») apparaît automatiquement sous le formulaire
+   — elle est masquée tant que la clé de site n'est pas configurée. Le
+   badge Google habituel (le petit encart flottant en bas d'écran) est
+   volontairement masqué en CSS (`.grecaptcha-badge`) pour ne pas nuire à
+   l'esthétique du site ni chevaucher la barre d'appel à l'action mobile ;
+   c'est autorisé par Google à condition de garder cette mention légale.
+
+**Philosophie du filtrage** : reCAPTCHA v3 ne bloque **jamais** une
+soumission par excès de prudence. Le jeton est obtenu en tâche de fond,
+avec un délai maximal de 6 secondes ; s'il n'est pas obtenu à temps (script
+Google bloqué par un bloqueur de publicités, réseau lent, service
+indisponible), la demande part quand même sans jeton. Côté serveur
+(`Code.gs`), seul un jeton **explicitement mauvais** (score inférieur à
+`RECAPTCHA_MIN_SCORE`, 0,5 par défaut) fait ignorer la soumission ; un
+jeton absent ou une erreur de vérification ne bloque jamais rien. Ce choix
+privilégie volontairement la perte occasionnelle d'un spam plutôt que le
+risque de perdre une vraie demande de devis.
 
 ### Fonctionnement
 

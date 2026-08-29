@@ -988,6 +988,10 @@ form{ display:grid; gap:22px; }
   background:var(--gold); transform:rotate(45deg);
 }
 
+/* ---------- reCAPTCHA v3 : badge Google masqué, mention légale affichée
+   à la place (autorisé par Google à condition de garder cette mention) ---------- */
+.grecaptcha-badge{ visibility:hidden !important; }
+
 /* ---------- simulateur de devis : radios/case à cocher inline + encart estimation ---------- */
 .radio-group{ display:flex; gap:24px; flex-wrap:wrap; padding-top:2px; }
 .field label.check-inline{
@@ -2065,6 +2069,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <p class="form-note">Réponse sous vingt-quatre heures ouvrées.</p>
           </div>
           <p class="form-note" id="form-error" role="alert"></p>
+          <p class="form-note" id="recaptcha-note" hidden>Ce site est protégé par reCAPTCHA : les
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" style="text-decoration:underline">règles de confidentialité</a> et les
+            <a href="https://policies.google.com/terms" target="_blank" rel="noopener" style="text-decoration:underline">conditions d’utilisation</a> de Google s’appliquent.</p>
         </form>
 
         <!-- confirmation affichée à la place du formulaire -->
@@ -2343,6 +2350,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   /* URL du déploiement Google Apps Script (voir README, section « Formulaire
      -> Google Sheets ») ; tant qu'elle n'est pas renseignée, l'envoi est bloqué. */
   var GOOGLE_SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbySWyMu-21DieE9tYCfceUOyO-_ZhuvzpyLWwMyFHGf1ZZj3JAcHhV7Gez2_mrayzxO/exec";
+
+  /* reCAPTCHA v3 (invisible, sans case à cocher) : voir README, section
+     « reCAPTCHA ». Tant que RECAPTCHA_SITE_KEY n'est pas renseignée, la
+     vérification est simplement ignorée et le formulaire fonctionne comme
+     avant. Le script Google n'est chargé qu'une fois la clé renseignée. */
+  var RECAPTCHA_SITE_KEY = "RECAPTCHA_SITE_KEY_A_COMPLETER";
+  var RECAPTCHA_CONFIGURED = RECAPTCHA_SITE_KEY.indexOf("A_COMPLETER") === -1;
+  if (RECAPTCHA_CONFIGURED) {
+    var recaptchaNote = document.getElementById("recaptcha-note");
+    if (recaptchaNote) { recaptchaNote.hidden = false; }
+    var recaptchaScript = document.createElement("script");
+    recaptchaScript.src = "https://www.google.com/recaptcha/api.js?render=" + RECAPTCHA_SITE_KEY;
+    document.head.appendChild(recaptchaScript);
+  }
+
   var form = document.getElementById("form");
   var sent = document.getElementById("sent");
   var again = document.getElementById("again");
@@ -2624,29 +2646,60 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       message: document.getElementById("f-msg").value.trim(),
       lang: document.documentElement.lang || "fr",
       page: window.location.href,
-      submittedAt: new Date().toISOString()
+      submittedAt: new Date().toISOString(),
+      recaptchaToken: ""
     };
 
-    /* Envoi vers Google Sheets via un déploiement Google Apps Script.
-       mode "no-cors" + Content-Type text/plain : évite le préflight CORS
-       qu'Apps Script ne gère pas ; la réponse est donc opaque (on ne peut
-       pas lire son statut), seul un échec réseau fait tomber dans .catch(). */
-    fetch(GOOGLE_SHEETS_ENDPOINT, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    }).then(function () {
-      submit.dataset.loading = "false";
-      submitLabel.textContent = "Envoyer la demande";
-      form.hidden = true;
-      sent.hidden = false;
-      sent.focus();
-    }).catch(function () {
-      submit.dataset.loading = "false";
-      submitLabel.textContent = "Envoyer la demande";
-      formError.textContent = "L’envoi a échoué. Réessayez ou contactez-nous directement.";
-    });
+    function sendPayload() {
+      /* Envoi vers Google Sheets via un déploiement Google Apps Script.
+         mode "no-cors" + Content-Type text/plain : évite le préflight CORS
+         qu'Apps Script ne gère pas ; la réponse est donc opaque (on ne peut
+         pas lire son statut), seul un échec réseau fait tomber dans .catch(). */
+      fetch(GOOGLE_SHEETS_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }).then(function () {
+        submit.dataset.loading = "false";
+        submitLabel.textContent = "Envoyer la demande";
+        form.hidden = true;
+        sent.hidden = false;
+        sent.focus();
+      }).catch(function () {
+        submit.dataset.loading = "false";
+        submitLabel.textContent = "Envoyer la demande";
+        formError.textContent = "L’envoi a échoué. Réessayez ou contactez-nous directement.";
+      });
+    }
+
+    /* Jeton reCAPTCHA v3 obtenu en tâche de fond, sans aucune interaction.
+       Toujours "best effort" : si le script Google est bloqué ou ne répond
+       pas assez vite (6s), la demande part quand même sans jeton plutôt que
+       de risquer de perdre une vraie demande — la vérification côté
+       serveur (Code.gs) ne rejette de toute façon que les jetons dont le
+       score est explicitement mauvais, jamais une absence de jeton. */
+    var recaptchaSettled = false;
+    function proceedWithToken(token) {
+      if (recaptchaSettled) { return; }
+      recaptchaSettled = true;
+      payload.recaptchaToken = token || "";
+      sendPayload();
+    }
+    if (RECAPTCHA_CONFIGURED && typeof grecaptcha !== "undefined") {
+      window.setTimeout(function () { proceedWithToken(""); }, 6000);
+      try {
+        grecaptcha.ready(function () {
+          grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: "submit" })
+            .then(proceedWithToken)
+            .catch(function () { proceedWithToken(""); });
+        });
+      } catch (err) {
+        proceedWithToken("");
+      }
+    } else {
+      proceedWithToken("");
+    }
   });
 
   again.addEventListener("click", function () {
