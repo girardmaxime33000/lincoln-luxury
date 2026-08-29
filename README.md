@@ -141,9 +141,13 @@ ligne).
 ### Fonctionnement
 
 - Chaque soumission valide ajoute une ligne dans la feuille active du
-  classeur (date, nom, courriel, téléphone, prestation, dates envisagées,
-  nombre de passagers, message, langue de la page, URL de la page). Le
-  script crée automatiquement la ligne d'en-têtes au premier envoi.
+  classeur (date, nom, courriel, téléphone, prestation, date de début, date
+  de fin, nombre de jours, nombre de passagers, message, langue de la page,
+  URL de la page). Le script crée automatiquement la ligne d'en-têtes au
+  premier envoi. Les dates de début/fin sont saisies via un calendrier sur
+  le site (`<input type="date">`) ; le nombre de jours est calculé
+  automatiquement par le script (inclusif : du 12 au 12 = 1 jour), vide si
+  une des deux dates manque.
 - L'appel `fetch()` utilise le mode `no-cors` (Apps Script ne gère pas les
   requêtes CORS en préflight) : la réponse ne peut donc pas être lue côté
   navigateur — la confirmation à l'écran signifie seulement que la requête

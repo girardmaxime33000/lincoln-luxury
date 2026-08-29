@@ -24,7 +24,7 @@ function doPost(e) {
 
   var headers = [
     "Date", "Nom", "Courriel", "Téléphone", "Prestation",
-    "Dates envisagées", "Passagers", "Message", "Langue", "Page"
+    "Début", "Fin", "Nombre de jours", "Passagers", "Message", "Langue", "Page"
   ];
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(headers);
@@ -37,13 +37,28 @@ function doPost(e) {
     data = {};
   }
 
+  // "Nombre de jours" est calculé ici (dates inclusives : du 12 au 12 = 1
+  // jour, du 12 au 14 = 3 jours) et réutilisé tel quel dans l'e-mail de
+  // notification ; laissé vide si une des deux dates manque.
+  var dateStart = data.dateStart ? new Date(data.dateStart) : "";
+  var dateEnd = data.dateEnd ? new Date(data.dateEnd) : "";
+  var nbJours = "";
+  if (dateStart && dateEnd) {
+    var msParJour = 24 * 60 * 60 * 1000;
+    nbJours = Math.round((dateEnd - dateStart) / msParJour) + 1;
+    if (nbJours < 1) { nbJours = ""; } // garde-fou si fin avant début
+  }
+  data.nbJours = nbJours;
+
   sheet.appendRow([
     data.submittedAt ? new Date(data.submittedAt) : new Date(),
     data.name || "",
     data.email || "",
     data.phone || "",
     data.service || "",
-    data.dates || "",
+    dateStart || "",
+    dateEnd || "",
+    nbJours,
     data.pax || "",
     data.message || "",
     data.lang || "",
@@ -72,6 +87,11 @@ function doPost(e) {
 function sendNotificationEmail(data) {
   var subject = "Nouvelle demande — " + (data.name || "site Lincoln Luxury");
 
+  var duree = "";
+  if (data.dateStart && data.dateEnd && data.nbJours) {
+    duree = " (" + data.nbJours + " jour" + (data.nbJours > 1 ? "s" : "") + ")";
+  }
+
   var body = [
     "Nouvelle demande reçue depuis le site Lincoln Luxury.",
     "",
@@ -79,7 +99,7 @@ function sendNotificationEmail(data) {
     "Courriel : " + (data.email || "—"),
     "Téléphone : " + (data.phone || "—"),
     "Prestation : " + (data.service || "—"),
-    "Dates envisagées : " + (data.dates || "—"),
+    "Dates : " + (data.dateStart || "—") + " → " + (data.dateEnd || "—") + duree,
     "Nombre de passagers : " + (data.pax || "—"),
     "",
     "Message :",
@@ -115,7 +135,9 @@ function testerNotification() {
     email: "test@example.com",
     phone: "0600000000",
     service: "Test",
-    dates: "",
+    dateStart: "2026-09-12",
+    dateEnd: "2026-09-15",
+    nbJours: 4,
     pax: "",
     message: "Ceci est un e-mail de test envoyé manuellement depuis l’éditeur Apps Script, à ignorer.",
     lang: "fr",
@@ -213,46 +235,47 @@ function setupDashboard_() {
     "=\"Aujourd'hui : \"&COUNTIFS(" + src + "!A2:A,\">=\"&TODAY()," + src + "!A2:A,\"<\"&TODAY()+1)",
     "=\"Cette semaine : \"&COUNTIFS(" + src + "!A2:A,\">=\"&TODAY()-WEEKDAY(TODAY(),3)," + src + "!A2:A,\"<\"&TODAY()+1)",
     "=\"Ce mois-ci : \"&COUNTIFS(" + src + "!A2:A,\">=\"&EOMONTH(TODAY(),-1)+1," + src + "!A2:A,\"<=\"&TODAY())",
-    "=\"Moy. passagers : \"&TEXT(IFERROR(AVERAGE(" + src + "!G2:G),0),\"0.#\")"
+    "=\"Durée moyenne : \"&TEXT(IFERROR(AVERAGE(" + src + "!H2:H),0),\"0.#\")&\" j.\"",
+    "=\"Moy. passagers : \"&TEXT(IFERROR(AVERAGE(" + src + "!I2:I),0),\"0.#\")"
   ];
   kpiFormulas.forEach(function (f, i) {
     sheet.getRange("A" + (5 + i)).setFormula(f);
   });
 
   // — Par prestation (jusqu'à 15 lignes, source cachée en colonnes C:D) —
-  sectionHeader_(sheet, 11, "🚘 Par prestation", BAND);
+  sectionHeader_(sheet, 12, "🚘 Par prestation", BAND);
   breakdownBlock_(sheet, "C",
-    "=QUERY(" + src + "!A2:J,\"select E, count(A) where E is not null " +
+    "=QUERY(" + src + "!A2:L,\"select E, count(A) where E is not null " +
     "group by E order by count(A) desc\",0)",
-    12, 15, "🔹");
+    13, 15, "🔹");
 
   // — Par langue (jusqu'à 6 lignes, source cachée en colonnes E:F) —
-  sectionHeader_(sheet, 28, "🌐 Par langue", BAND);
+  sectionHeader_(sheet, 29, "🌐 Par langue", BAND);
   breakdownBlock_(sheet, "E",
-    "=QUERY(" + src + "!A2:J,\"select I, count(A) where I is not null " +
-    "group by I order by count(A) desc\",0)",
-    29, 6, "🔹");
+    "=QUERY(" + src + "!A2:L,\"select K, count(A) where K is not null " +
+    "group by K order by count(A) desc\",0)",
+    30, 6, "🔹");
 
   // — Par page source (jusqu'à 10 lignes, source cachée en colonnes G:H) —
-  sectionHeader_(sheet, 36, "📍 Par page source", BAND);
+  sectionHeader_(sheet, 37, "📍 Par page source", BAND);
   breakdownBlock_(sheet, "G",
-    "=QUERY(" + src + "!A2:J,\"select J, count(A) where J is not null " +
-    "group by J order by count(A) desc\",0)",
-    37, 10, "🔹");
+    "=QUERY(" + src + "!A2:L,\"select L, count(A) where L is not null " +
+    "group by L order by count(A) desc\",0)",
+    38, 10, "🔹");
 
   // — Évolution mensuelle, plafonnée à 12 mois (source cachée en I:J) —
-  sectionHeader_(sheet, 48, "📈 Évolution (12 derniers mois)", BAND);
+  sectionHeader_(sheet, 49, "📈 Évolution (12 derniers mois)", BAND);
   breakdownBlock_(sheet, "I",
     "=QUERY({" + src + "!A2:A, TEXT(" + src + "!A2:A,\"mmm yyyy\")}," +
     "\"select Col2, count(Col1) where Col1 is not null group by Col2 " +
     "order by max(Col1) desc limit 12\",0)",
-    49, 12, "📈");
+    50, 12, "📈");
 
   // — 10 dernières demandes, en cartes (source cachée en colonnes K:N) —
-  sectionHeader_(sheet, 62, "🆕 10 dernières demandes", BAND);
+  sectionHeader_(sheet, 63, "🆕 10 dernières demandes", BAND);
   recentLeadsBlock_(sheet,
-    "=QUERY(" + src + "!A2:J,\"select A, B, D, E order by A desc limit 10\",0)",
-    63, 10);
+    "=QUERY(" + src + "!A2:L,\"select A, B, D, E order by A desc limit 10\",0)",
+    64, 10);
 
   sheet.setFrozenRows(1);
 }
