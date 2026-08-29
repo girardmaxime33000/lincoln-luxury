@@ -953,6 +953,26 @@ form{ display:grid; gap:22px; }
 .row-2{ display:grid; grid-template-columns:1fr; gap:22px; }
 .row-3{ display:grid; grid-template-columns:1fr; gap:22px; }
 
+/* ---------- simulateur de devis : radios/case à cocher inline + encart estimation ---------- */
+.radio-group{ display:flex; gap:24px; flex-wrap:wrap; padding-top:2px; }
+.field label.check-inline{
+  text-transform:none; letter-spacing:normal; font-size:14px; color:var(--paper);
+  display:flex; align-items:center; gap:8px; cursor:pointer;
+}
+.field input[type="checkbox"],.field input[type="radio"]{ width:auto; accent-color:var(--gold); cursor:pointer; }
+.quote-box{
+  margin-top:4px; padding:22px 26px; border:1px solid var(--gold-deep);
+  background:linear-gradient(180deg, rgba(201,169,110,.08), transparent 70%);
+}
+.quote-box__total{ font-family:var(--display); font-size:22px; color:var(--gold-hi); }
+.quote-box__toggle{
+  display:inline-block; margin-top:10px; background:none; border:0; padding:0;
+  color:var(--paper-dim); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+  cursor:pointer; text-decoration:underline;
+}
+.quote-box__toggle:hover{ color:var(--gold-hi); }
+.quote-box__detail{ margin-top:12px; font-size:13.5px; color:var(--paper-dim); line-height:1.7; }
+
 .form-note{ font-size:12px; color:var(--paper-faint); letter-spacing:.04em; }
 .btn[data-loading="true"]{ pointer-events:none; opacity:.72; }
 
@@ -1863,10 +1883,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <label for="f-service">Prestation <span class="req" aria-hidden="true">*</span></label>
               <select id="f-service" name="service" required aria-describedby="e-service">
                 <option value="">Choisir…</option>
-                <option>Wine tour, séjour de plusieurs jours</option>
-                <option>Wine tour, une journée</option>
+                <option>Mise à disposition avec chauffeur (Wine tour)</option>
                 <option>Transfert aéroport ou gare</option>
-                <option>Mise à disposition avec chauffeur</option>
+                <option>Transfert vers une destination</option>
                 <option>Autre demande</option>
               </select>
               <span class="err" id="e-service" role="status"></span>
@@ -1874,12 +1893,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
 
           <div class="row-3">
-            <div class="field">
-              <label for="f-date-start">Date de début</label>
+            <div class="field" id="wrap-date-start">
+              <label for="f-date-start" id="label-date-start">Date de début</label>
               <input id="f-date-start" name="dateStart" type="date" aria-describedby="e-date-start">
               <span class="err" id="e-date-start" role="status"></span>
             </div>
-            <div class="field">
+            <div class="field" id="wrap-date-end">
               <label for="f-date-end">Date de fin</label>
               <input id="f-date-end" name="dateEnd" type="date" aria-describedby="e-date-end">
               <span class="err" id="e-date-end" role="status"></span>
@@ -1889,6 +1908,52 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <input id="f-pax" name="pax" type="text" inputmode="numeric" placeholder="Facultatif" aria-describedby="e-pax">
               <span class="err" id="e-pax" role="status"></span>
             </div>
+          </div>
+
+          <div class="row-2" id="fields-disposition" hidden>
+            <div class="field">
+              <label for="f-hours">Heures par jour</label>
+              <input id="f-hours" name="hoursPerDay" type="number" min="4" step="1" value="8">
+            </div>
+            <div class="field">
+              <label for="f-lunch">Paniers repas</label>
+              <input id="f-lunch" name="lunchCount" type="number" min="0" step="1" value="0">
+            </div>
+          </div>
+
+          <div class="row-2" id="fields-transfer-bdx" hidden>
+            <div class="field">
+              <label>Horaire du transfert</label>
+              <div class="radio-group">
+                <label class="check-inline" for="f-transfer-day"><input type="radio" name="transferTime" id="f-transfer-day" value="jour" checked> Jour</label>
+                <label class="check-inline" for="f-transfer-night"><input type="radio" name="transferTime" id="f-transfer-night" value="nuit"> Nuit</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row-2" id="fields-destination" hidden>
+            <div class="field">
+              <label for="f-destination">Destination</label>
+              <select id="f-destination" name="destination">
+                <option value="Saint-Émilion">Saint-Émilion</option>
+                <option value="Pauillac">Pauillac</option>
+                <option value="Arcachon">Arcachon</option>
+                <option value="Cap Ferret">Cap Ferret</option>
+                <option value="Lacanau">Lacanau</option>
+                <option value="Biarritz">Biarritz</option>
+                <option value="San Sebastián">San Sebastián</option>
+                <option value="Paris">Paris</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="check-inline" for="f-roundtrip"><input type="checkbox" id="f-roundtrip" name="roundTrip"> Aller-retour</label>
+            </div>
+          </div>
+
+          <div class="quote-box" id="quote-box" hidden>
+            <div class="quote-box__total">Estimation : <span id="quote-amount">—</span></div>
+            <button type="button" class="quote-box__toggle" id="quote-toggle">Voir le détail</button>
+            <div class="quote-box__detail" id="quote-detail" hidden></div>
           </div>
 
           <div class="field">
@@ -2184,6 +2249,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   var submit = document.getElementById("submit");
   var submitLabel = document.getElementById("submit-label");
   var formError = document.getElementById("form-error");
+  var serviceSelect = document.getElementById("f-service");
   var EMAIL = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
 
   var rules = {
@@ -2270,6 +2336,127 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     });
   });
 
+  /* ---------- simulateur de devis ---------- */
+  /* Grille tarifaire Lincoln Luxury (voir Tarifs_Wine_Tours_Bordeaux.xlsx) :
+     calcul purement indicatif, entièrement côté client — la demande reste
+     confirmée manuellement par l'équipe, ce n'est pas un paiement. */
+  var HOURLY_RATE = 100;
+  var MIN_HOURS = 4;
+  var LUNCH_PRICE = 25;
+  var TRANSFER_BORDEAUX = { jour: 100, nuit: 139.9 };
+  var DESTINATIONS = {
+    "Saint-Émilion": 200, "Pauillac": 240, "Arcachon": 250, "Cap Ferret": 250,
+    "Lacanau": 250, "Biarritz": 600, "San Sebastián": 1000, "Paris": 2290
+  };
+  var SERVICE_GROUPS = {
+    "Mise à disposition avec chauffeur (Wine tour)": "disposition",
+    "Transfert aéroport ou gare": "transfer-bdx",
+    "Transfert vers une destination": "destination",
+    "Autre demande": "autre"
+  };
+
+  var wrapDateEnd = document.getElementById("wrap-date-end");
+  var labelDateStart = document.getElementById("label-date-start");
+  var fieldsDisposition = document.getElementById("fields-disposition");
+  var fieldsTransferBdx = document.getElementById("fields-transfer-bdx");
+  var fieldsDestination = document.getElementById("fields-destination");
+  var quoteBox = document.getElementById("quote-box");
+  var quoteAmount = document.getElementById("quote-amount");
+  var quoteToggle = document.getElementById("quote-toggle");
+  var quoteDetail = document.getElementById("quote-detail");
+  var lastEstimateAmount = "";
+  var lastEstimateLabel = "";
+
+  function currentServiceGroup() { return SERVICE_GROUPS[serviceSelect.value] || null; }
+
+  function formatEuros(n) {
+    var opts = { maximumFractionDigits: 2, minimumFractionDigits: n % 1 !== 0 ? 2 : 0 };
+    return n.toLocaleString("fr-FR", opts) + " €";
+  }
+
+  function quoteDaysCount() {
+    var start = document.getElementById("f-date-start").value;
+    var end = document.getElementById("f-date-end").value;
+    if (!start || !end) { return 1; }
+    var days = Math.round((new Date(end) - new Date(start)) / 86400000) + 1;
+    return days > 0 ? days : 1;
+  }
+
+  function updateServiceFields() {
+    var group = currentServiceGroup();
+    wrapDateEnd.hidden = group !== "disposition";
+    fieldsDisposition.hidden = group !== "disposition";
+    fieldsTransferBdx.hidden = group !== "transfer-bdx";
+    fieldsDestination.hidden = group !== "destination";
+    labelDateStart.textContent = group === "disposition" ? "Date de début" : "Date du transfert";
+    quoteBox.hidden = !group;
+    updateEstimate();
+  }
+
+  function updateEstimate() {
+    var group = currentServiceGroup();
+    if (!group) { return; }
+
+    if (group === "autre") {
+      quoteAmount.textContent = "Devis personnalisé";
+      quoteToggle.hidden = true;
+      quoteDetail.hidden = true;
+      lastEstimateAmount = "";
+      lastEstimateLabel = "Devis personnalisé";
+      return;
+    }
+
+    quoteToggle.hidden = false;
+    var total = 0;
+    var lines = [];
+
+    if (group === "disposition") {
+      var hours = Math.max(MIN_HOURS, parseInt(document.getElementById("f-hours").value, 10) || MIN_HOURS);
+      var lunch = Math.max(0, parseInt(document.getElementById("f-lunch").value, 10) || 0);
+      var days = quoteDaysCount();
+      var base = days * hours * HOURLY_RATE;
+      total = base + lunch * LUNCH_PRICE;
+      lines.push(days + " jour" + (days > 1 ? "s" : "") + " × " + hours + " h × " + HOURLY_RATE + " € = " + formatEuros(base));
+      if (lunch > 0) {
+        lines.push(lunch + " panier" + (lunch > 1 ? "s" : "") + " repas × " + LUNCH_PRICE + " € = " + formatEuros(lunch * LUNCH_PRICE));
+      }
+    } else if (group === "transfer-bdx") {
+      var timeInput = document.querySelector('input[name="transferTime"]:checked');
+      var time = timeInput ? timeInput.value : "jour";
+      total = TRANSFER_BORDEAUX[time];
+      lines.push("Transfert " + (time === "nuit" ? "de nuit" : "de jour") + " : " + formatEuros(total));
+    } else if (group === "destination") {
+      var dest = document.getElementById("f-destination").value;
+      var roundTrip = document.getElementById("f-roundtrip").checked;
+      var base2 = DESTINATIONS[dest] || 0;
+      total = roundTrip ? base2 * 2 : base2;
+      lines.push("Bordeaux ↔ " + dest + (roundTrip ? " (aller-retour)" : " (aller simple)") + " : " + formatEuros(total));
+    }
+
+    quoteAmount.textContent = formatEuros(total);
+    quoteDetail.innerHTML = lines.map(function (l) { return "<div>" + l + "</div>"; }).join("");
+    lastEstimateAmount = total;
+    lastEstimateLabel = lines.join(" ; ");
+  }
+
+  serviceSelect.addEventListener("change", updateServiceFields);
+  ["f-date-start", "f-date-end", "f-hours", "f-lunch", "f-destination"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener("input", updateEstimate);
+      el.addEventListener("change", updateEstimate);
+    }
+  });
+  ["f-transfer-day", "f-transfer-night", "f-roundtrip"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) { el.addEventListener("change", updateEstimate); }
+  });
+  quoteToggle.addEventListener("click", function () {
+    quoteDetail.hidden = !quoteDetail.hidden;
+    quoteToggle.textContent = quoteDetail.hidden ? "Voir le détail" : "Masquer le détail";
+  });
+  updateServiceFields();
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     formError.textContent = "";
@@ -2295,14 +2482,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     submit.dataset.loading = "true";
     submitLabel.textContent = "Envoi en cours";
 
+    var quoteGroup = currentServiceGroup();
+    var transferTimeInput = document.querySelector('input[name="transferTime"]:checked');
+
     var payload = {
       name: document.getElementById("f-name").value.trim(),
       email: document.getElementById("f-email").value.trim(),
       phone: document.getElementById("f-phone").value.trim(),
       service: document.getElementById("f-service").value,
       dateStart: document.getElementById("f-date-start").value,
-      dateEnd: document.getElementById("f-date-end").value,
+      dateEnd: quoteGroup === "disposition" ? document.getElementById("f-date-end").value : "",
       pax: document.getElementById("f-pax").value.trim(),
+      hoursPerDay: quoteGroup === "disposition" ? document.getElementById("f-hours").value : "",
+      lunchCount: quoteGroup === "disposition" ? document.getElementById("f-lunch").value : "",
+      transferTime: quoteGroup === "transfer-bdx" && transferTimeInput ? transferTimeInput.value : "",
+      destination: quoteGroup === "destination" ? document.getElementById("f-destination").value : "",
+      roundTrip: quoteGroup === "destination" ? document.getElementById("f-roundtrip").checked : false,
+      estimatedTotal: lastEstimateAmount,
+      estimatedLabel: lastEstimateLabel,
       message: document.getElementById("f-msg").value.trim(),
       lang: document.documentElement.lang || "fr",
       page: window.location.href,
@@ -2342,6 +2539,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (errEl) { errEl.textContent = ""; }
       }
     });
+    updateServiceFields();
     sent.hidden = true;
     form.hidden = false;
     document.getElementById("f-name").focus();

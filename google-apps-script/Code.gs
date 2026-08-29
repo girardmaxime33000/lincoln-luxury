@@ -34,14 +34,10 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  // Diagnostic temporaire : confirme dans le journal d'exécution le nom
-  // exact de l'onglet réellement ciblé par cette exécution. À retirer une
-  // fois le problème de ligne mal placée résolu.
-  console.log("doPost écrit dans l'onglet : " + sheet.getName() + " (spreadsheet ID : " + SpreadsheetApp.getActiveSpreadsheet().getId() + ")");
-
   var headers = [
     "Date", "Nom", "Courriel", "Téléphone", "Prestation",
-    "Début", "Fin", "Nombre de jours", "Passagers", "Message", "Langue", "Page"
+    "Début", "Fin", "Nombre de jours", "Détail devis", "Estimation (€)",
+    "Passagers", "Message", "Langue", "Page"
   ];
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(headers);
@@ -79,11 +75,15 @@ function doPost(e) {
   }
   data.nbJours = nbJours;
 
-  // Diagnostic temporaire : le log précédent ("doPost écrit dans
-  // l'onglet...") s'affiche même pour la requête vide de redirection
-  // interne (voir plus haut), qui ne passe jamais par ici. Celui-ci ne
-  // s'affiche que si on est bien en train d'ajouter une vraie ligne.
-  console.log("Ajout de la ligne pour \"" + data.name + "\" — lastRow avant : " + sheet.getLastRow());
+  // "Estimation (€)" est stockée en nombre brut (pas de "€" ni de texte)
+  // pour rester exploitable par les formules du Dashboard (SUM, AVERAGE...) ;
+  // vide si le simulateur du site n'a pas produit de chiffre (ex. "Autre
+  // demande", où seul "Détail devis" contient un texte du type "Devis
+  // personnalisé").
+  var estimation = "";
+  if (data.estimatedTotal !== "" && data.estimatedTotal != null && !isNaN(Number(data.estimatedTotal))) {
+    estimation = Number(data.estimatedTotal);
+  }
 
   sheet.appendRow([
     data.submittedAt ? new Date(data.submittedAt) : new Date(),
@@ -94,13 +94,13 @@ function doPost(e) {
     dateStart || "",
     dateEnd || "",
     nbJours,
+    data.estimatedLabel || "",
+    estimation,
     data.pax || "",
     data.message || "",
     data.lang || "",
     data.page || ""
   ]);
-
-  console.log("Ligne ajoutée — lastRow après : " + sheet.getLastRow());
 
   if (NOTIFY_EMAIL && NOTIFY_EMAIL.indexOf("@") > -1) {
     try {
@@ -131,6 +131,12 @@ function sendNotificationEmail(data) {
   var nbJoursTxt = data.nbJours ? (data.nbJours + " jour" + (data.nbJours > 1 ? "s" : "")) : "—";
   var receivedAt = data.submittedAt || new Date().toISOString();
 
+  // Estimation calculée côté site par le simulateur de devis : un montant
+  // chiffré si applicable, sinon le texte renvoyé (ex. "Devis personnalisé"
+  // pour "Autre demande").
+  var hasEstimate = data.estimatedTotal !== "" && data.estimatedTotal != null && !isNaN(Number(data.estimatedTotal));
+  var estimateTxt = hasEstimate ? formatEuros_(data.estimatedTotal) : (data.estimatedLabel || "—");
+
   var body = [
     "LINCOLN LUXURY — Nouvelle demande de réservation",
     "",
@@ -144,6 +150,8 @@ function sendNotificationEmail(data) {
     "Date de début : " + (dateStartFr || "—"),
     "Date de fin : " + (dateEndFr || "—"),
     "Nombre de jours : " + nbJoursTxt,
+    "Détail du devis : " + (data.estimatedLabel || "—"),
+    "Estimation : " + estimateTxt,
     "Nombre de passagers : " + (data.pax || "—"),
     "",
     "MESSAGE DU CLIENT",
@@ -189,6 +197,9 @@ function sendNotificationEmail(data) {
                 row("Date de début", dateStartFr) +
                 row("Date de fin", dateEndFr) +
                 row("Nombre de jours", nbJoursTxt) +
+                row("Détail du devis", data.estimatedLabel) +
+                "<tr><td style=\"padding:7px 0;font-size:13px;color:#8a8a86;width:170px;vertical-align:top;\">Estimation</td>" +
+                "<td style=\"padding:7px 0;font-size:16px;font-weight:bold;color:#9c7a1e;vertical-align:top;\">" + escapeHtml_(estimateTxt) + "</td></tr>" +
                 row("Passagers", data.pax) +
               "</table>" +
             "</td></tr>" +
@@ -224,6 +235,14 @@ function formatDateFr_(iso) {
   return parts[2] + "/" + parts[1] + "/" + parts[0];
 }
 
+/** Formate un montant en euros à la française (ex. 139.9 → "139,90 €"). */
+function formatEuros_(n) {
+  var num = Number(n);
+  if (isNaN(num)) { return "—"; }
+  var opts = { maximumFractionDigits: 2, minimumFractionDigits: num % 1 !== 0 ? 2 : 0 };
+  return num.toLocaleString("fr-FR", opts) + " €";
+}
+
 /**
  * Échappe les caractères HTML spéciaux d'un texte fourni par le client
  * (nom, message, etc.) avant de l'insérer dans l'e-mail HTML, pour éviter
@@ -255,10 +274,12 @@ function testerNotification() {
     name: "Test manuel",
     email: "test@example.com",
     phone: "0600000000",
-    service: "Test",
+    service: "Mise à disposition avec chauffeur (Wine tour)",
     dateStart: "2026-09-12",
     dateEnd: "2026-09-15",
     nbJours: 4,
+    estimatedLabel: "4 jours × 8 h × 100 € = 3 200 € ; 2 paniers repas × 25 € = 50 €",
+    estimatedTotal: 3250,
     pax: "",
     message: "Ceci est un e-mail de test envoyé manuellement depuis l’éditeur Apps Script, à ignorer.",
     lang: "fr",
@@ -357,46 +378,47 @@ function setupDashboard_() {
     "=\"Cette semaine : \"&COUNTIFS(" + src + "!A2:A,\">=\"&TODAY()-WEEKDAY(TODAY(),3)," + src + "!A2:A,\"<\"&TODAY()+1)",
     "=\"Ce mois-ci : \"&COUNTIFS(" + src + "!A2:A,\">=\"&EOMONTH(TODAY(),-1)+1," + src + "!A2:A,\"<=\"&TODAY())",
     "=\"Durée moyenne : \"&TEXT(IFERROR(AVERAGE(" + src + "!H2:H),0),\"0.#\")&\" j.\"",
-    "=\"Moy. passagers : \"&TEXT(IFERROR(AVERAGE(" + src + "!I2:I),0),\"0.#\")"
+    "=\"Moy. passagers : \"&TEXT(IFERROR(AVERAGE(" + src + "!K2:K),0),\"0.#\")",
+    "=\"Total estimé : \"&TEXT(SUM(" + src + "!J2:J),\"#,##0.##\")&\" €\""
   ];
   kpiFormulas.forEach(function (f, i) {
     sheet.getRange("A" + (5 + i)).setFormula(f);
   });
 
   // — Par prestation (jusqu'à 15 lignes, source cachée en colonnes C:D) —
-  sectionHeader_(sheet, 12, "🚘 Par prestation", BAND);
+  sectionHeader_(sheet, 13, "🚘 Par prestation", BAND);
   breakdownBlock_(sheet, "C",
-    "=QUERY(" + src + "!A2:L,\"select E, count(A) where E is not null " +
+    "=QUERY(" + src + "!A2:N,\"select E, count(A) where E is not null " +
     "group by E order by count(A) desc\",0)",
-    13, 15, "🔹");
+    14, 15, "🔹");
 
   // — Par langue (jusqu'à 6 lignes, source cachée en colonnes E:F) —
-  sectionHeader_(sheet, 29, "🌐 Par langue", BAND);
+  sectionHeader_(sheet, 30, "🌐 Par langue", BAND);
   breakdownBlock_(sheet, "E",
-    "=QUERY(" + src + "!A2:L,\"select K, count(A) where K is not null " +
-    "group by K order by count(A) desc\",0)",
-    30, 6, "🔹");
+    "=QUERY(" + src + "!A2:N,\"select M, count(A) where M is not null " +
+    "group by M order by count(A) desc\",0)",
+    31, 6, "🔹");
 
   // — Par page source (jusqu'à 10 lignes, source cachée en colonnes G:H) —
-  sectionHeader_(sheet, 37, "📍 Par page source", BAND);
+  sectionHeader_(sheet, 38, "📍 Par page source", BAND);
   breakdownBlock_(sheet, "G",
-    "=QUERY(" + src + "!A2:L,\"select L, count(A) where L is not null " +
-    "group by L order by count(A) desc\",0)",
-    38, 10, "🔹");
+    "=QUERY(" + src + "!A2:N,\"select N, count(A) where N is not null " +
+    "group by N order by count(A) desc\",0)",
+    39, 10, "🔹");
 
   // — Évolution mensuelle, plafonnée à 12 mois (source cachée en I:J) —
-  sectionHeader_(sheet, 49, "📈 Évolution (12 derniers mois)", BAND);
+  sectionHeader_(sheet, 50, "📈 Évolution (12 derniers mois)", BAND);
   breakdownBlock_(sheet, "I",
     "=QUERY({" + src + "!A2:A, TEXT(" + src + "!A2:A,\"mmm yyyy\")}," +
     "\"select Col2, count(Col1) where Col1 is not null group by Col2 " +
     "order by max(Col1) desc limit 12\",0)",
-    50, 12, "📈");
+    51, 12, "📈");
 
   // — 10 dernières demandes, en cartes (source cachée en colonnes K:N) —
-  sectionHeader_(sheet, 63, "🆕 10 dernières demandes", BAND);
+  sectionHeader_(sheet, 64, "🆕 10 dernières demandes", BAND);
   recentLeadsBlock_(sheet,
-    "=QUERY(" + src + "!A2:L,\"select A, B, D, E order by A desc limit 10\",0)",
-    64, 10);
+    "=QUERY(" + src + "!A2:N,\"select A, B, D, E order by A desc limit 10\",0)",
+    65, 10);
 
   sheet.setFrozenRows(1);
 }

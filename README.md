@@ -140,14 +140,29 @@ ligne).
 
 ### Fonctionnement
 
+- Le formulaire est un **simulateur de devis** : le choix de « Prestation »
+  (mise à disposition avec chauffeur / transfert aéroport ou gare / transfert
+  vers une destination / autre demande) fait apparaître les champs adaptés
+  (heures par jour et paniers repas, ou horaire jour/nuit, ou destination et
+  aller-retour) et calcule une estimation en direct, entièrement côté
+  navigateur, à partir de la grille tarifaire codée en haut du script inline
+  de chaque page (100 €/h en mise à disposition, minimum 4h, 25 € le panier
+  repas, 100 €/139,90 € pour un transfert Bordeaux jour/nuit, tarifs fixes
+  par destination). Le total s'affiche dans un encart doré avec un lien
+  « Voir le détail » repliable ; pour « Autre demande », aucun calcul n'est
+  proposé (« Devis personnalisé »).
 - Chaque soumission valide ajoute une ligne dans la feuille active du
   classeur (date, nom, courriel, téléphone, prestation, date de début, date
-  de fin, nombre de jours, nombre de passagers, message, langue de la page,
-  URL de la page). Le script crée automatiquement la ligne d'en-têtes au
-  premier envoi. Les dates de début/fin sont saisies via un calendrier sur
-  le site (`<input type="date">`) ; le nombre de jours est calculé
-  automatiquement par le script (inclusif : du 12 au 12 = 1 jour), vide si
-  une des deux dates manque.
+  de fin, nombre de jours, détail du devis, estimation en euros, nombre de
+  passagers, message, langue de la page, URL de la page). Le script crée
+  automatiquement la ligne d'en-têtes au premier envoi. Les dates de
+  début/fin sont saisies via un calendrier sur le site
+  (`<input type="date">`) ; le nombre de jours est calculé automatiquement
+  par le script (inclusif : du 12 au 12 = 1 jour), vide si une des deux
+  dates manque. Le détail et le montant du devis sont calculés côté
+  navigateur (voir ci-dessus) puis transmis tels quels au script, qui se
+  contente de les enregistrer — il n'y a pas de double calcul côté serveur,
+  car il s'agit d'une demande de devis indicative et non d'un paiement.
 - L'appel `fetch()` utilise le mode `no-cors` (Apps Script ne gère pas les
   requêtes CORS en préflight) : la réponse ne peut donc pas être lue côté
   navigateur — la confirmation à l'écran signifie seulement que la requête
@@ -164,9 +179,10 @@ ligne).
 e-mail récapitulatif mis en forme (HTML, avec repli en texte brut) aux
 adresses définies dans `NOTIFY_EMAIL` (en haut de `Code.gs`) : nom,
 courriel, téléphone, prestation, date de début, date de fin, nombre de
-jours (calculé automatiquement), passagers, message, langue, page.
-L'e-mail du client est placé en « répondre à », donc répondre directement
-à la notification répond au client.
+jours (calculé automatiquement), détail du devis, estimation (mise en
+valeur en gras doré), passagers, message, langue, page. L'e-mail du client
+est placé en « répondre à », donc répondre directement à la notification
+répond au client.
 
 - L'e-mail est envoyé depuis le compte Google propriétaire du script
   (celui utilisé lors du déploiement), avec la limite quotidienne standard
@@ -198,7 +214,8 @@ n'empêche pas la ligne d'être ajoutée à la feuille). Pour corriger :
 ### Dashboard
 
 Le classeur peut aussi afficher un onglet **Dashboard** récapitulant les
-demandes reçues (indicateurs clés, répartitions par prestation/langue/page,
+demandes reçues (indicateurs clés — dont un total estimé en euros cumulant
+tous les devis calculés —, répartitions par prestation/langue/page,
 évolution mensuelle, dernières demandes), construit uniquement avec des
 formules natives Google Sheets (`QUERY`, `COUNTIFS`) — donc modifiable
 librement ensuite directement dans Sheets.
