@@ -17,8 +17,10 @@ Classe S.
 │   │   └── fonts.css    # Déclarations @font-face pour les polices auto-hébergées
 │   ├── fonts/            # Polices auto-hébergées (Cormorant Garamond, Playfair Display, Jost)
 │   └── img/               # Photos utilisées sur la page, partagées par les 4 langues
-└── google-apps-script/
-    └── Code.gs           # Script Apps Script : reçoit le formulaire, écrit dans Google Sheets
+├── google-apps-script/
+│   └── Code.gs           # Script Apps Script : reçoit le formulaire, écrit dans Google Sheets
+├── .github/workflows/    # Déploiement automatique sur GitHub Pages à chaque push sur main
+└── CNAME                 # Domaine personnalisé GitHub Pages (www.lincoln-luxury.fr)
 ```
 
 Il n'y a pas de dépendance, de build ni de framework : chaque `index.html`
@@ -49,8 +51,68 @@ section :
 - **05 — La clientèle** : discrétion et confidentialité.
 - **06 — Bordeaux et son vignoble** : le territoire et les appellations.
 - **07 — Le déroulé** : comment se passe une réservation.
-- **08 — Questions** (FAQ) et **09 — Contact** (formulaire de réservation).
-- Pied de page : mentions légales, confidentialité, crédits photo.
+- **08 — Questions** (FAQ) et **09 — Contact** (formulaire de réservation /
+  simulateur de devis, voir la section dédiée ci-dessous).
+- Pied de page : mentions légales, confidentialité, crédits photo, numéro
+  de téléphone cliquable.
+
+## Simulateur de devis & repères façon réservation/VTC
+
+Au-delà de la page éditoriale, le site emprunte plusieurs codes des sites
+de réservation (Booking) et des applis de VTC/taxi, tout en gardant le
+style graphique noir/or du reste du site (pas de badge criard ni d'urgence
+artificielle) :
+
+- **Simulateur de devis** (section 09, Contact) : le choix de « Prestation »
+  (mise à disposition avec chauffeur / transfert aéroport ou gare /
+  transfert vers une destination / autre demande) fait apparaître les
+  champs adaptés et calcule une estimation chiffrée en direct, entièrement
+  côté navigateur — voir le détail complet dans « Formulaire → Google
+  Sheets » ci-dessous, où sont documentés la grille tarifaire, le format
+  des données envoyées et leur enregistrement.
+- **Mini-estimateur dans le hero** : une « barre de recherche » compacte,
+  tout en haut de la page, qui laisse choisir une prestation dès l'écran
+  d'accueil (`#hero-quote` / `#hero-service`). Valider renvoie vers le
+  simulateur complet en bas de page avec la prestation déjà présélectionnée
+  et le focus posé sur le premier champ — aucun calcul n'est dupliqué ici,
+  c'est une redirection vers le vrai formulaire.
+- **Barre d'appel à l'action fixe** (`.mobile-cta`) : sur mobile et
+  tablette (moins de 1180px de large, tant que le bouton « Réserver » de
+  l'en-tête desktop n'est pas visible), une barre reste fixée en bas de
+  l'écran avec un lien « Appeler » (`tel:`) et un lien « Devis instantané »
+  vers le formulaire.
+- **Bandeau de réassurance** (`.trust-bar`) : juste au-dessus du
+  formulaire de contact — devis gratuit et sans engagement, réponse
+  personnelle sous 24h, discrétion totale sur les données transmises.
+- **Numéro de téléphone cliquable** : le numéro (`07 XX XX XX XX`, encore
+  un placeholder — voir « À compléter avant la mise en ligne ») est un
+  vrai lien `tel:` partout où il apparaît : menu plein écran mobile, pied
+  de page et barre d'appel à l'action fixe. Il suffira de remplacer le
+  placeholder (dans le `href="tel:"` et dans le texte affiché) une fois le
+  vrai numéro connu pour que ces trois emplacements fonctionnent.
+
+## Référencement, suivi & accessibilité
+
+- **SEO** : balises `hreflang` croisées entre les 4 langues, URL
+  canonique, image de partage Open Graph (`og:image`), et deux blocs
+  JSON-LD par page — un schéma `LimousineService` (coordonnées, zone
+  desservie, prestations proposées) et un schéma `FAQPage` qui reprend les
+  questions de la section 08. Un favicon typographique (monogramme « L »
+  doré sur fond noir) est généré en `data:` URI SVG inline, sans fichier
+  externe.
+- **Suivi** : Google Tag Manager (`GTM-NJ3XCNSF`) et Google Analytics via
+  `gtag.js` (`G-8XLYD7NMHF`) sont posés en haut de chaque page, avec le
+  `<noscript>` de secours pour GTM. Identifiants à remplacer par ceux du
+  compte définitif avant mise en ligne si besoin.
+- **Accessibilité** : lien d'évitement (« Aller au contenu ») en tout
+  début de page, messages d'erreur de formulaire en `role="status"`,
+  intitulés `aria-label`/`aria-describedby` sur les champs et boutons,
+  `prefers-reduced-motion` respecté (désactive les animations de
+  révélation au scroll et le grain du hero), état de focus visible
+  (`:focus-visible`) cohérent avec la charte graphique.
+- **Impression** : une feuille de style dédiée (`@media print`) masque
+  l'en-tête, le menu plein écran, le bandeau défilant et les effets visuels
+  du hero pour ne conserver que le contenu utile.
 
 ## Mode clair / sombre
 
@@ -68,11 +130,14 @@ Le contenu ci-dessous est volontairement signalé en placeholder (dans le
 HTML et, pour certains, visuellement sur la page) et doit être remplacé
 avant publication :
 
-- **Coordonnées** : numéro de téléphone (`07 XX XX XX XX`) et adresse e-mail
-  dans l'en-tête mobile, le pied de page et les deux blocs JSON-LD, sur les
-  4 langues. (Le bloc récapitulatif Téléphone/Courriel/Zone qui figurait à
-  côté du formulaire de contact a été retiré : ces informations ne sont
-  plus affichées tant qu'elles ne sont pas définitives.)
+- **Coordonnées** : numéro de téléphone (`07 XX XX XX XX` / `tel:+33700000000`)
+  et adresse e-mail, sur les 4 langues. Le numéro apparaît à quatre
+  endroits : le menu plein écran mobile, la barre d'appel à l'action fixe
+  (mobile/tablette), le pied de page et les deux blocs JSON-LD — chercher
+  `07 XX XX XX XX` et `+33700000000` dans chaque fichier pour les
+  remplacer tous. (Le bloc récapitulatif Téléphone/Courriel/Zone qui
+  figurait à côté du formulaire de contact a été retiré : ces informations
+  ne sont plus affichées tant qu'elles ne sont pas définitives.)
 - **Formulaire de contact** : le formulaire envoie ses soumissions vers
   Google Sheets via Google Apps Script, mais l'URL de déploiement doit être
   renseignée avant mise en ligne — voir la section « Formulaire → Google
