@@ -44,6 +44,13 @@
   src: url(../fonts/jost-400.ttf) format('truetype');
 }
 @font-face {
+  font-family: 'Jost';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(../fonts/jost-700.ttf) format('truetype');
+}
+@font-face {
   font-family: 'Playfair Display';
   font-style: normal;
   font-weight: 400;
@@ -56,4 +63,18 @@
   font-weight: 500;
   font-display: swap;
   src: url(../fonts/playfair-display-500.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(../fonts/playfair-display-700.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url(../fonts/playfair-display-900.ttf) format('truetype');
 }
