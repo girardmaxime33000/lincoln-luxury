@@ -171,6 +171,23 @@ répondre directement à la notification répond au client.
 - Pour couper les notifications sans toucher au reste, vide `NOTIFY_EMAIL`
   (`NOTIFY_EMAIL = "";`) et redéploie une nouvelle version.
 
+**La feuille se remplit mais aucun e-mail n'arrive** : c'est en général une
+autorisation Gmail manquante. Comme les appels du formulaire sont
+automatiques, Google ne peut pas afficher de fenêtre d'autorisation à ce
+moment-là — l'envoi échoue silencieusement (l'erreur est journalisée mais
+n'empêche pas la ligne d'être ajoutée à la feuille). Pour corriger :
+
+1. Dans l'éditeur Apps Script, ouvre le menu déroulant à côté du bouton
+   **Exécuter** et choisis la fonction **`testerNotification`**.
+2. Clique sur **Exécuter**. Si une fenêtre d'autorisation Google apparaît
+   (avec un éventuel écran « Google n'a pas vérifié cette application » →
+   **Paramètres avancés → Accéder à [nom du projet] (non sécurisé)**),
+   valide-la.
+3. Regarde si l'e-mail de test arrive à l'adresse définie dans
+   `NOTIFY_EMAIL` (vérifie aussi les spams).
+4. En cas d'erreur, le détail apparaît directement dans l'éditeur ainsi que
+   dans le journal **Exécutions**.
+
 ## Développement local
 
 Aucune installation n'est nécessaire. Pour prévisualiser le site en local,

@@ -91,3 +91,30 @@ function sendNotificationEmail(data) {
 
   MailApp.sendEmail(mail);
 }
+
+/**
+ * Fonction de test à lancer manuellement depuis l'éditeur Apps Script
+ * (sélectionner "testerNotification" dans le menu déroulant à côté du
+ * bouton Exécuter, puis cliquer sur Exécuter). Utile pour :
+ * - déclencher la demande d'autorisation Gmail si elle n'a pas encore
+ *   été validée (l'envoi via doPost, appelé automatiquement par le
+ *   formulaire, ne peut pas afficher cette demande) ;
+ * - vérifier que NOTIFY_EMAIL reçoit bien l'e-mail, indépendamment du
+ *   reste du formulaire.
+ * Sans effet sur la feuille Google Sheets : seul un e-mail de test est
+ * envoyé.
+ */
+function testerNotification() {
+  sendNotificationEmail({
+    name: "Test manuel",
+    email: "test@example.com",
+    phone: "0600000000",
+    service: "Test",
+    dates: "",
+    pax: "",
+    message: "Ceci est un e-mail de test envoyé manuellement depuis l’éditeur Apps Script, à ignorer.",
+    lang: "fr",
+    page: "test",
+    submittedAt: new Date().toISOString()
+  });
+}
