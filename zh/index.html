@@ -950,6 +950,7 @@ form{ display:grid; gap:22px; }
 .field.invalid input,.field.invalid select,.field.invalid textarea{ border-bottom-color:#A9563C; }
 .field.invalid .err{ opacity:1; transform:none; }
 .row-2{ display:grid; grid-template-columns:1fr; gap:22px; }
+.row-3{ display:grid; grid-template-columns:1fr; gap:22px; }
 
 .form-note{ font-size:12px; color:var(--paper-faint); letter-spacing:.04em; }
 .btn[data-loading="true"]{ pointer-events:none; opacity:.72; }
@@ -1008,6 +1009,7 @@ form{ display:grid; gap:22px; }
 
 @media (min-width:600px){
   .row-2{ grid-template-columns:1fr 1fr; }
+  .row-3{ grid-template-columns:1fr 1fr 1fr; }
   .steps{ grid-template-columns:repeat(3,1fr); }
   .spec{ grid-template-columns:repeat(2,1fr); }
 }
@@ -1858,10 +1860,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
           </div>
 
-          <div class="row-2">
+          <div class="row-3">
             <div class="field">
-              <label for="f-dates">预计日期</label>
-              <input id="f-dates" name="dates" type="text" placeholder="例如：9月12日至15日">
+              <label for="f-date-start">开始日期</label>
+              <input id="f-date-start" name="dateStart" type="date" aria-describedby="e-date-start">
+              <span class="err" id="e-date-start" role="status"></span>
+            </div>
+            <div class="field">
+              <label for="f-date-end">结束日期</label>
+              <input id="f-date-end" name="dateEnd" type="date" aria-describedby="e-date-end">
+              <span class="err" id="e-date-end" role="status"></span>
             </div>
             <div class="field">
               <label for="f-pax">乘客人数</label>
@@ -2182,6 +2190,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (!v) { return "请选择一项服务。"; }
       return "";
     },
+    "f-date-start": function (v) {
+      var end = document.getElementById("f-date-end").value;
+      if (v && end && v > end) { return "开始日期应早于结束日期。"; }
+      return "";
+    },
+    "f-date-end": function (v) {
+      var start = document.getElementById("f-date-start").value;
+      if (v && start && v < start) { return "结束日期应晚于开始日期。"; }
+      return "";
+    },
     "f-pax": function (v) {
       if (!v.trim()) { return ""; }
       if (!/^[0-9]{1,2}$/.test(v.trim())) { return "请填写乘客人数。"; }
@@ -2227,6 +2245,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     });
   });
 
+  ["f-date-start", "f-date-end"].forEach(function (id) {
+    var input = document.getElementById(id);
+    if (!input) { return; }
+    input.addEventListener("change", function () {
+      check(document.getElementById("f-date-start"));
+      check(document.getElementById("f-date-end"));
+    });
+  });
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     formError.textContent = "";
@@ -2257,7 +2284,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       email: document.getElementById("f-email").value.trim(),
       phone: document.getElementById("f-phone").value.trim(),
       service: document.getElementById("f-service").value,
-      dates: document.getElementById("f-dates").value.trim(),
+      dateStart: document.getElementById("f-date-start").value,
+      dateEnd: document.getElementById("f-date-end").value,
       pax: document.getElementById("f-pax").value.trim(),
       message: document.getElementById("f-msg").value.trim(),
       lang: document.documentElement.lang || "zh",

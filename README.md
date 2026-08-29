@@ -125,12 +125,13 @@ déploiement Apps Script.
    `URL_DU_DEPLOIEMENT_APPS_SCRIPT_A_COMPLETER` et remplace par l'URL
    copiée à l'étape précédente.
 6. `NOTIFY_EMAIL` est déjà renseignée dans `Code.gs` avec
-   `girard.maxime33@gmail.com` — c'est cette adresse qui recevra une
-   notification à chaque demande. Change-la directement dans l'éditeur
-   Apps Script si besoin (puis **Gérer les déploiements → modifier →
-   Nouvelle version**, voir plus bas — cela ne change pas l'URL). Laisse
-   `NOTIFY_EMAIL = ""` pour désactiver les notifications par e-mail (seule
-   la feuille Google Sheets sera alors mise à jour).
+   `girard.maxime33@gmail.com,driver.lincoln-luxury@outlook.com` — ce sont
+   ces adresses (séparées par une virgule) qui recevront une notification à
+   chaque demande. Change-les directement dans l'éditeur Apps Script si
+   besoin (puis **Gérer les déploiements → modifier → Nouvelle version**,
+   voir plus bas — cela ne change pas l'URL). Laisse `NOTIFY_EMAIL = ""`
+   pour désactiver les notifications par e-mail (seule la feuille Google
+   Sheets sera alors mise à jour).
 
 Tant que l'URL de déploiement n'est pas renseignée dans les fichiers HTML,
 le formulaire refuse l'envoi et affiche un message expliquant qu'il n'est
@@ -140,9 +141,13 @@ ligne).
 ### Fonctionnement
 
 - Chaque soumission valide ajoute une ligne dans la feuille active du
-  classeur (date, nom, courriel, téléphone, prestation, dates envisagées,
-  nombre de passagers, message, langue de la page, URL de la page). Le
-  script crée automatiquement la ligne d'en-têtes au premier envoi.
+  classeur (date, nom, courriel, téléphone, prestation, date de début, date
+  de fin, nombre de jours, nombre de passagers, message, langue de la page,
+  URL de la page). Le script crée automatiquement la ligne d'en-têtes au
+  premier envoi. Les dates de début/fin sont saisies via un calendrier sur
+  le site (`<input type="date">`) ; le nombre de jours est calculé
+  automatiquement par le script (inclusif : du 12 au 12 = 1 jour), vide si
+  une des deux dates manque.
 - L'appel `fetch()` utilise le mode `no-cors` (Apps Script ne gère pas les
   requêtes CORS en préflight) : la réponse ne peut donc pas être lue côté
   navigateur — la confirmation à l'écran signifie seulement que la requête
@@ -187,6 +192,37 @@ n'empêche pas la ligne d'être ajoutée à la feuille). Pour corriger :
    `NOTIFY_EMAIL` (vérifie aussi les spams).
 4. En cas d'erreur, le détail apparaît directement dans l'éditeur ainsi que
    dans le journal **Exécutions**.
+
+### Dashboard
+
+Le classeur peut aussi afficher un onglet **Dashboard** récapitulant les
+demandes reçues (indicateurs clés, répartitions par prestation/langue/page,
+évolution mensuelle, dernières demandes), construit uniquement avec des
+formules natives Google Sheets (`QUERY`, `COUNTIFS`) — donc modifiable
+librement ensuite directement dans Sheets.
+
+Mise en page pensée pour une consultation sur mobile : tout est empilé
+verticalement dans la seule colonne visible (A), sans aucune cellule
+fusionnée et sans jamais avoir besoin de scroller horizontalement dans
+l'appli Google Sheets. Les 10 dernières demandes s'affichent en petites
+cartes (une par ligne) plutôt qu'en tableau large. Les colonnes B à N sont
+masquées : elles servent uniquement de zone de calcul interne (résultats
+bruts des `QUERY`) utilisée pour composer le texte affiché en colonne A.
+
+Pour le générer (ou le régénérer) :
+
+1. Vérifie que `LEADS_SHEET_NAME` (en haut de `Code.gs`) correspond bien au
+   nom de l'onglet qui reçoit les lignes du formulaire (`Sheet1` par
+   défaut) — renomme-le dans le script si tu as renommé l'onglet.
+2. Dans l'éditeur Apps Script, ouvre le menu déroulant à côté du bouton
+   **Exécuter** et choisis la fonction **`setupDashboard`**.
+3. Clique sur **Exécuter**. Un onglet **Dashboard** est créé (ou réinitialisé
+   s'il existe déjà) en première position du classeur.
+
+Relancer `setupDashboard` à tout moment écrase et régénère l'onglet à
+l'identique — utile si tu veux revenir à la mise en page d'origine après
+l'avoir personnalisé. Aucun effet sur l'onglet des demandes ni sur
+l'envoi d'e-mail.
 
 ## Développement local
 
