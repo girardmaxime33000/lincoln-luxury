@@ -80,9 +80,10 @@ avant publication :
   hébergeur — à compléter dans le pied de page des 4 langues.
 - **Image de partage** (`og:image`) : pointe actuellement vers
   `og.jpg`, à créer (1200×630) et déposer à la racine.
-- **Nom de domaine** : les URLs canoniques, `hreflang` et JSON-LD
-  supposent `https://www.lincolnluxury.fr/` — à ajuster si le domaine
-  final diffère.
+- **Nom de domaine** : les URLs canoniques, `hreflang` et JSON-LD pointent
+  vers `https://www.lincoln-luxury.fr/` (domaine acheté sur Hostinger) — à
+  ajuster si le domaine final diffère. Voir la section « Domaine
+  personnalisé (Hostinger) » ci-dessous pour le brancher sur GitHub Pages.
 - **Photos** : les photographies actuelles viennent de Wikimedia Commons
   (voir Crédits photo ci-dessous) ; à remplacer de préférence par des
   photos du vignoble et du véhicule réalisées pour Lincoln Luxury.
@@ -104,9 +105,43 @@ production.)
 ## Déploiement (GitHub Pages)
 
 Le site étant 100 % statique, il se déploie tel quel sur GitHub Pages, sans
-étape de build. Voir la configuration mise en place dans ce dépôt (workflow
-GitHub Actions ou branche de déploiement, selon la configuration choisie
-dans les paramètres du dépôt).
+étape de build, via le workflow GitHub Actions défini dans
+`.github/workflows/` (déclenché à chaque push sur `main`).
+
+### Domaine personnalisé (Hostinger)
+
+Le domaine `lincoln-luxury.fr` a été acheté sur Hostinger et le fichier
+`CNAME` à la racine du dépôt (`www.lincoln-luxury.fr`) indique à GitHub
+Pages le domaine à servir. Deux étapes restent à faire pour que le site
+réponde sur ce domaine :
+
+1. **Chez Hostinger** (zone DNS du domaine, menu *Domaines → DNS / Nameservers*) :
+   - un enregistrement **CNAME** pour `www` → `girardmaxime33000.github.io.`
+   - quatre enregistrements **A** sur l'apex (`@` / `lincoln-luxury.fr`)
+     vers les IP de GitHub Pages :
+     ```
+     185.199.108.153
+     185.199.109.153
+     185.199.110.153
+     185.199.111.153
+     ```
+   - (optionnel, IPv6) quatre enregistrements **AAAA** sur l'apex :
+     ```
+     2606:50c0:8000::153
+     2606:50c0:8001::153
+     2606:50c0:8002::153
+     2606:50c0:8003::153
+     ```
+   - Supprimer/désactiver tout « parking page » ou redirection par défaut
+     mis en place par Hostinger sur le domaine.
+2. **Côté GitHub** (Settings → Pages du dépôt) : renseigner
+   `www.lincoln-luxury.fr` comme *Custom domain* (le fichier `CNAME` du
+   dépôt le pré-remplit normalement), attendre la vérification DNS, puis
+   cocher **Enforce HTTPS** une fois le certificat émis.
+
+La propagation DNS peut prendre de quelques minutes à 24-48h. Une fois
+active, l'apex `lincoln-luxury.fr` redirige automatiquement vers
+`https://www.lincoln-luxury.fr/`.
 
 ## Crédits photo
 
