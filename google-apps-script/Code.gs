@@ -37,6 +37,18 @@ function doPost(e) {
     data = {};
   }
 
+  // Ignore les requêtes vides : Google Apps Script redirige en interne
+  // après un POST, et le navigateur peut suivre cette redirection avec une
+  // deuxième requête sans corps JSON. Sans nom, courriel ni message, ce
+  // n'est clairement pas une vraie soumission du formulaire — on ne
+  // l'enregistre pas et on n'envoie pas d'e-mail, mais on répond quand
+  // même "success" pour ne rien casser côté site.
+  if (!data.name && !data.email && !data.message) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ result: "success" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   // "Nombre de jours" est calculé ici (dates inclusives : du 12 au 12 = 1
   // jour, du 12 au 14 = 3 jours) et réutilisé tel quel dans l'e-mail de
   // notification ; laissé vide si une des deux dates manque.
