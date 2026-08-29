@@ -23,7 +23,7 @@ var LEADS_SHEET_NAME = "Sheet1";
 // en même temps que la clé "de site" utilisée dans les 4 fichiers HTML).
 // Laisser vide ("") pour désactiver la vérification anti-spam : le
 // formulaire fonctionne alors exactement comme avant, sans filtrage.
-var RECAPTCHA_SECRET_KEY = "RECAPTCHA_SECRET_KEY_A_COMPLETER";
+var RECAPTCHA_SECRET_KEY = "6LfpNZ8tAAAAAMUKRPQqIf-ylIS3pOn9VGTFqsvZ";
 
 // Score minimal (0 = très probablement un robot, 1 = très probablement un
 // humain) en dessous duquel une soumission est ignorée. 0.5 est la valeur
