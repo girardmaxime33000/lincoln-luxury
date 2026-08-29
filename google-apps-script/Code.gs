@@ -79,6 +79,12 @@ function doPost(e) {
   }
   data.nbJours = nbJours;
 
+  // Diagnostic temporaire : le log précédent ("doPost écrit dans
+  // l'onglet...") s'affiche même pour la requête vide de redirection
+  // interne (voir plus haut), qui ne passe jamais par ici. Celui-ci ne
+  // s'affiche que si on est bien en train d'ajouter une vraie ligne.
+  console.log("Ajout de la ligne pour \"" + data.name + "\" — lastRow avant : " + sheet.getLastRow());
+
   sheet.appendRow([
     data.submittedAt ? new Date(data.submittedAt) : new Date(),
     data.name || "",
@@ -93,6 +99,8 @@ function doPost(e) {
     data.lang || "",
     data.page || ""
   ]);
+
+  console.log("Ligne ajoutée — lastRow après : " + sheet.getLastRow());
 
   if (NOTIFY_EMAIL && NOTIFY_EMAIL.indexOf("@") > -1) {
     try {
