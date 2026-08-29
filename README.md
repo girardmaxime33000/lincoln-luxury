@@ -189,6 +189,29 @@ n'empêche pas la ligne d'être ajoutée à la feuille). Pour corriger :
 4. En cas d'erreur, le détail apparaît directement dans l'éditeur ainsi que
    dans le journal **Exécutions**.
 
+### Dashboard
+
+Le classeur peut aussi afficher un onglet **Dashboard** récapitulant les
+demandes reçues (indicateurs clés, répartitions par prestation/langue/page,
+évolution mensuelle, dernières demandes), construit uniquement avec des
+formules natives Google Sheets (`QUERY`, `COUNTIFS`) — donc modifiable
+librement ensuite directement dans Sheets.
+
+Pour le générer (ou le régénérer) :
+
+1. Vérifie que `LEADS_SHEET_NAME` (en haut de `Code.gs`) correspond bien au
+   nom de l'onglet qui reçoit les lignes du formulaire (`reporting` par
+   défaut) — renomme-le dans le script si tu as renommé l'onglet.
+2. Dans l'éditeur Apps Script, ouvre le menu déroulant à côté du bouton
+   **Exécuter** et choisis la fonction **`setupDashboard`**.
+3. Clique sur **Exécuter**. Un onglet **Dashboard** est créé (ou réinitialisé
+   s'il existe déjà) en première position du classeur.
+
+Relancer `setupDashboard` à tout moment écrase et régénère l'onglet à
+l'identique — utile si tu veux revenir à la mise en page d'origine après
+l'avoir personnalisé. Aucun effet sur l'onglet des demandes ni sur
+l'envoi d'e-mail.
+
 ## Développement local
 
 Aucune installation n'est nécessaire. Pour prévisualiser le site en local,

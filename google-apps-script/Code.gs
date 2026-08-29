@@ -15,6 +15,10 @@
 // Google Sheets sera alors mise à jour).
 var NOTIFY_EMAIL = "girard.maxime33@gmail.com,driver.lincoln-luxury@outlook.com";
 
+// Nom de l'onglet qui reçoit les lignes du formulaire (utilisé par
+// setupDashboard ci-dessous pour construire les formules du dashboard).
+var LEADS_SHEET_NAME = "reporting";
+
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
@@ -118,4 +122,84 @@ function testerNotification() {
     page: "test",
     submittedAt: new Date().toISOString()
   });
+}
+
+/**
+ * Crée (ou réinitialise) un onglet "Dashboard" avec des formules natives
+ * Google Sheets (QUERY/COUNTIFS) qui résument les demandes de l'onglet
+ * LEADS_SHEET_NAME : indicateurs clés, répartitions par prestation/langue/
+ * page, évolution mensuelle et dernières demandes.
+ *
+ * À lancer une seule fois manuellement depuis l'éditeur Apps Script
+ * (sélectionner "setupDashboard" dans le menu déroulant à côté du bouton
+ * Exécuter, puis cliquer sur Exécuter). Une fois généré, l'onglet ne
+ * contient que des formules classiques : modifie-le librement dans
+ * Google Sheets, relancer la fonction l'écrase et le régénère à l'identique.
+ *
+ * Si tu renommes l'onglet des demandes, mets à jour LEADS_SHEET_NAME en
+ * haut de ce fichier avant de relancer setupDashboard.
+ */
+function setupDashboard() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var src = "'" + LEADS_SHEET_NAME + "'";
+  var name = "Dashboard";
+
+  var sheet = ss.getSheetByName(name);
+  if (sheet) {
+    sheet.clear();
+  } else {
+    sheet = ss.insertSheet(name);
+  }
+  ss.setActiveSheet(sheet);
+  ss.moveActiveSheet(1);
+
+  sheet.getRange("A1").setValue("Dashboard — Lincoln Luxury")
+    .setFontSize(16).setFontWeight("bold");
+  sheet.getRange("A2").setValue("Dernière mise à jour :").setFontStyle("italic");
+  sheet.getRange("B2").setFormula("=NOW()").setNumberFormat("dd/MM/yyyy HH:mm");
+
+  // Indicateurs clés.
+  sheet.getRange("A4").setValue("Indicateurs clés").setFontWeight("bold");
+  var kpis = [
+    ["Total demandes", "=COUNTA(" + src + "!B2:B)"],
+    ["Demandes aujourd'hui",
+      "=COUNTIFS(" + src + "!A2:A,\">=\"&TODAY()," + src + "!A2:A,\"<\"&TODAY()+1)"],
+    ["Demandes cette semaine",
+      "=COUNTIFS(" + src + "!A2:A,\">=\"&TODAY()-WEEKDAY(TODAY(),3)," + src + "!A2:A,\"<\"&TODAY()+1)"],
+    ["Demandes ce mois-ci",
+      "=COUNTIFS(" + src + "!A2:A,\">=\"&EOMONTH(TODAY(),-1)+1," + src + "!A2:A,\"<=\"&TODAY())"],
+    ["Moyenne passagers", "=IFERROR(AVERAGE(" + src + "!G2:G),0)"]
+  ];
+  sheet.getRange(5, 1, kpis.length, 2).setValues(kpis);
+  sheet.getRange(5, 1, kpis.length, 1).setFontWeight("bold");
+
+  // Les 4 tableaux ci-dessous sont posés côte à côte (pas les uns sous les
+  // autres) pour qu'ils puissent grandir en hauteur sans jamais se chevaucher.
+  sheet.getRange("A12").setValue("Par prestation").setFontWeight("bold");
+  sheet.getRange("A13").setFormula(
+    "=QUERY(" + src + "!A2:J,\"select E, count(A) where E is not null " +
+    "group by E order by count(A) desc label E 'Prestation', count(A) 'Nombre'\",0)");
+
+  sheet.getRange("D12").setValue("Par langue").setFontWeight("bold");
+  sheet.getRange("D13").setFormula(
+    "=QUERY(" + src + "!A2:J,\"select I, count(A) where I is not null " +
+    "group by I order by count(A) desc label I 'Langue', count(A) 'Nombre'\",0)");
+
+  sheet.getRange("G12").setValue("Par page source").setFontWeight("bold");
+  sheet.getRange("G13").setFormula(
+    "=QUERY(" + src + "!A2:J,\"select J, count(A) where J is not null " +
+    "group by J order by count(A) desc label J 'Page', count(A) 'Nombre'\",0)");
+
+  sheet.getRange("J12").setValue("Évolution mensuelle").setFontWeight("bold");
+  sheet.getRange("J13").setFormula(
+    "=QUERY(" + src + "!A2:J,\"select year(A), month(A)+1, count(A) where A is not null " +
+    "group by year(A), month(A)+1 order by year(A), month(A)+1 " +
+    "label year(A) 'Année', month(A)+1 'Mois', count(A) 'Nombre'\",0)");
+
+  sheet.getRange("N12").setValue("10 dernières demandes").setFontWeight("bold");
+  sheet.getRange("N13").setFormula(
+    "=QUERY(" + src + "!A2:J,\"select A, B, C, D, E, G order by A desc limit 10 " +
+    "label A 'Date', B 'Nom', C 'Courriel', D 'Téléphone', E 'Prestation', G 'Passagers'\",0)");
+
+  sheet.autoResizeColumns(1, 19);
 }
