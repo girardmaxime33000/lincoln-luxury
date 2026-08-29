@@ -17,14 +17,14 @@
 <meta name="description" content="波尔多品酒之旅与专属司机接送服务，座驾为奔驰S级。酒店专车接送，为您量身定制葡萄园行程，专属司机全程陪同，绝对私密。">
 <meta name="theme-color" content="#050505">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://www.lincolnluxury.fr/zh/">
+<link rel="canonical" href="https://www.lincoln-luxury.fr/zh/">
 
 <!-- 语言版本：内容相同，提供法语（默认）、英语、西班牙语和中文 -->
-<link rel="alternate" hreflang="fr" href="https://www.lincolnluxury.fr/">
-<link rel="alternate" hreflang="en" href="https://www.lincolnluxury.fr/en/">
-<link rel="alternate" hreflang="es" href="https://www.lincolnluxury.fr/es/">
-<link rel="alternate" hreflang="zh" href="https://www.lincolnluxury.fr/zh/">
-<link rel="alternate" hreflang="x-default" href="https://www.lincolnluxury.fr/">
+<link rel="alternate" hreflang="fr" href="https://www.lincoln-luxury.fr/">
+<link rel="alternate" hreflang="en" href="https://www.lincoln-luxury.fr/en/">
+<link rel="alternate" hreflang="es" href="https://www.lincoln-luxury.fr/es/">
+<link rel="alternate" hreflang="zh" href="https://www.lincoln-luxury.fr/zh/">
+<link rel="alternate" hreflang="x-default" href="https://www.lincoln-luxury.fr/">
 
 <!-- 待替换为真实域名及分享图片 (og.jpg, 1200x630) -->
 <meta property="og:type" content="website">
@@ -35,8 +35,8 @@
 <meta property="og:site_name" content="Lincoln Luxury">
 <meta property="og:title" content="Lincoln Luxury — 波尔多豪华品酒之旅与专属座驾服务">
 <meta property="og:description" content="旅途本身即是艺术，尽在奔驰S级之中。波尔多葡萄园品酒之旅与专属司机接送服务。">
-<meta property="og:url" content="https://www.lincolnluxury.fr/zh/">
-<meta property="og:image" content="https://www.lincolnluxury.fr/og.jpg">
+<meta property="og:url" content="https://www.lincoln-luxury.fr/zh/">
+<meta property="og:image" content="https://www.lincoln-luxury.fr/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Lincoln Luxury — 波尔多豪华品酒之旅与专属座驾服务">
 <meta name="twitter:description" content="旅途本身即是艺术，尽在奔驰S级之中。波尔多葡萄园品酒之旅与专属司机接送服务。">
@@ -903,19 +903,6 @@ section{ position:relative; }
 
 .contact-grid{ display:grid; grid-template-columns:1fr; gap:clamp(40px,5vw,80px); }
 
-.coord{ margin:0; }
-.coord div + div{ margin-top:28px; }
-.coord dt{ font-size:10px; letter-spacing:.3em; text-transform:uppercase; color:var(--gold-deep); margin-bottom:10px; }
-.coord dd{
-  margin:0; font-family:var(--display); font-size:clamp(20px,2.6vw,26px);
-  color:var(--paper); letter-spacing:.01em;
-}
-.coord dd small{
-  display:block; margin-top:8px;
-  font-family:var(--sans); font-size:11px; letter-spacing:.16em;
-  text-transform:uppercase; color:var(--paper-faint);
-}
-
 form{ display:grid; gap:22px; }
 .field{ display:grid; gap:9px; }
 .field label{
@@ -1024,7 +1011,7 @@ form{ display:grid; gap:22px; }
   .grid-2.top{ align-items:start; }
   .grid-3{ grid-template-columns:repeat(3,1fr); }
   .sec-head{ grid-template-columns:1.2fr .8fr; }
-  .contact-grid{ grid-template-columns:.8fr 1.2fr; align-items:start; }
+  .contact-grid{ max-width:640px; }
   .quiet{ grid-template-columns:1.05fr .95fr; align-items:start; }
   .foot-top{ grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr); align-items:start; }
   .scrollcue{ display:flex; }
@@ -1816,25 +1803,6 @@ form{ display:grid; gap:22px; }
     </div>
 
     <div class="contact-grid">
-      <div class="rv">
-        <dl class="coord">
-          <div>
-            <dt>电话</dt>
-            <!-- 待替换为真实联系方式 -->
-            <dd>07 XX XX XX XX<small>号码待补充</small></dd>
-          </div>
-          <div>
-            <dt>电子邮箱</dt>
-            <!-- 待替换为真实联系方式 -->
-            <dd>contact@lincolnluxury.fr<small>地址待确认</small></dd>
-          </div>
-          <div>
-            <dt>服务区域</dt>
-            <dd>波尔多、吉伦特省及周边葡萄园<small>可按需前往其他地区</small></dd>
-          </div>
-        </dl>
-      </div>
-
       <div class="rv" data-d="1">
         <form id="form" novalidate>
           <div class="row-2">
@@ -1852,8 +1820,8 @@ form{ display:grid; gap:22px; }
 
           <div class="row-2">
             <div class="field">
-              <label for="f-phone">电话</label>
-              <input id="f-phone" name="phone" type="tel" autocomplete="tel" placeholder="选填" aria-describedby="e-phone">
+              <label for="f-phone">电话 <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" placeholder="您的电话号码" required aria-describedby="e-phone">
               <span class="err" id="e-phone" role="status"></span>
             </div>
             <div class="field">
@@ -2162,7 +2130,10 @@ form{ display:grid; gap:22px; }
     watched.forEach(function (section) { spyObserver.observe(section); });
   }
 
-  /* ---------- 表单：前端校验，无后端 ---------- */
+  /* ---------- 表单：前端校验 + 提交至 Google 表格 ---------- */
+  /* Google Apps Script 部署网址（见 README「表单 -> Google 表格」一节）；
+     未填写前，表单提交会被拦截。 */
+  var GOOGLE_SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbwEHdL1FO_d-Ik9CgBHd_H99Vovw17i1XyS39Q5g7K-T-TlD09_aZbsi0VvsCjTkDer/exec";
   var form = document.getElementById("form");
   var sent = document.getElementById("sent");
   var again = document.getElementById("again");
@@ -2183,7 +2154,7 @@ form{ display:grid; gap:22px; }
       return "";
     },
     "f-phone": function (v) {
-      if (!v.trim()) { return ""; }
+      if (!v.trim()) { return "请填写您的电话号码。"; }
       if (v.replace(/[^0-9]/g, "").length < 6) { return "该号码似乎不完整。"; }
       return "";
     },
@@ -2253,18 +2224,47 @@ form{ display:grid; gap:22px; }
       return;
     }
 
+    if (!/^https:\/\/script\.google\.com\//.test(GOOGLE_SHEETS_ENDPOINT)) {
+      formError.textContent = "表单尚未接入，请直接联系我们。";
+      return;
+    }
+
     submit.dataset.loading = "true";
     submitLabel.textContent = "发送中";
 
-    /* 无后端：确认信息仅在本地展示。
-       请在此处接入真实的提交方式（邮件或表单服务）。 */
-    window.setTimeout(function () {
+    var payload = {
+      name: document.getElementById("f-name").value.trim(),
+      email: document.getElementById("f-email").value.trim(),
+      phone: document.getElementById("f-phone").value.trim(),
+      service: document.getElementById("f-service").value,
+      dates: document.getElementById("f-dates").value.trim(),
+      pax: document.getElementById("f-pax").value.trim(),
+      message: document.getElementById("f-msg").value.trim(),
+      lang: document.documentElement.lang || "zh",
+      page: window.location.href,
+      submittedAt: new Date().toISOString()
+    };
+
+    /* 通过 Google Apps Script 部署提交到 Google 表格。
+       使用 "no-cors" 模式 + text/plain 的 Content-Type，避免 Apps Script
+       无法处理的 CORS 预检请求；因此响应是不透明的（无法读取其状态），
+       只有网络请求失败才会进入 .catch()。 */
+    fetch(GOOGLE_SHEETS_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    }).then(function () {
       submit.dataset.loading = "false";
       submitLabel.textContent = "发送需求";
       form.hidden = true;
       sent.hidden = false;
       sent.focus();
-    }, reduced ? 60 : 700);
+    }).catch(function () {
+      submit.dataset.loading = "false";
+      submitLabel.textContent = "发送需求";
+      formError.textContent = "发送失败，请重试或直接联系我们。";
+    });
   });
 
   again.addEventListener("click", function () {
@@ -2294,12 +2294,12 @@ form{ display:grid; gap:22px; }
   "@type": "LimousineService",
   "name": "Lincoln Luxury",
   "description": "波尔多葡萄园品酒之旅与专属司机接送服务，座驾为奔驰S级轿车。",
-  "url": "https://www.lincolnluxury.fr/zh/",
-  "image": "https://www.lincolnluxury.fr/assets/img/bordeaux-place-de-la-bourse-nuit-2400.jpg",
+  "url": "https://www.lincoln-luxury.fr/zh/",
+  "image": "https://www.lincoln-luxury.fr/assets/img/bordeaux-place-de-la-bourse-nuit-2400.jpg",
   "areaServed": { "@type": "AdministrativeArea", "name": "波尔多与吉伦特省" },
   "address": { "@type": "PostalAddress", "addressLocality": "Bordeaux", "addressCountry": "FR" },
   "telephone": "07 XX XX XX XX",
-  "email": "contact@lincolnluxury.fr",
+  "email": "contact@lincoln-luxury.fr",
   "knowsLanguage": ["fr", "en", "es", "zh"],
   "makesOffer": [
     { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "波尔多葡萄园品酒之旅" } },

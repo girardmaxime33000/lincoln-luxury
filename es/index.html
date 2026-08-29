@@ -18,14 +18,14 @@
 <meta name="description" content="Wine tours y transporte privado en Burdeos en un Mercedes Clase S. Recogida en el hotel, jornadas a medida en el viñedo, chófer privado y discreción absoluta.">
 <meta name="theme-color" content="#050505">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://www.lincolnluxury.fr/es/">
+<link rel="canonical" href="https://www.lincoln-luxury.fr/es/">
 
 <!-- versiones de idioma: mismo contenido, en francés (por defecto), inglés, español y chino -->
-<link rel="alternate" hreflang="fr" href="https://www.lincolnluxury.fr/">
-<link rel="alternate" hreflang="en" href="https://www.lincolnluxury.fr/en/">
-<link rel="alternate" hreflang="es" href="https://www.lincolnluxury.fr/es/">
-<link rel="alternate" hreflang="zh" href="https://www.lincolnluxury.fr/zh/">
-<link rel="alternate" hreflang="x-default" href="https://www.lincolnluxury.fr/">
+<link rel="alternate" hreflang="fr" href="https://www.lincoln-luxury.fr/">
+<link rel="alternate" hreflang="en" href="https://www.lincoln-luxury.fr/en/">
+<link rel="alternate" hreflang="es" href="https://www.lincoln-luxury.fr/es/">
+<link rel="alternate" hreflang="zh" href="https://www.lincoln-luxury.fr/zh/">
+<link rel="alternate" hreflang="x-default" href="https://www.lincoln-luxury.fr/">
 
 <!-- a sustituir por el dominio real y una imagen de compartición real (og.jpg, 1200x630) -->
 <meta property="og:type" content="website">
@@ -36,8 +36,8 @@
 <meta property="og:site_name" content="Lincoln Luxury">
 <meta property="og:title" content="Lincoln Luxury — Wine Tours y Transporte de Lujo en Burdeos">
 <meta property="og:description" content="El arte del viaje, en un Clase S. Wine tours por el viñedo de Burdeos y transporte privado con chófer.">
-<meta property="og:url" content="https://www.lincolnluxury.fr/es/">
-<meta property="og:image" content="https://www.lincolnluxury.fr/og.jpg">
+<meta property="og:url" content="https://www.lincoln-luxury.fr/es/">
+<meta property="og:image" content="https://www.lincoln-luxury.fr/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Lincoln Luxury — Wine Tours y Transporte de Lujo en Burdeos">
 <meta name="twitter:description" content="El arte del viaje, en un Clase S. Wine tours por el viñedo de Burdeos y transporte privado con chófer.">
@@ -904,19 +904,6 @@ section{ position:relative; }
 
 .contact-grid{ display:grid; grid-template-columns:1fr; gap:clamp(40px,5vw,80px); }
 
-.coord{ margin:0; }
-.coord div + div{ margin-top:28px; }
-.coord dt{ font-size:10px; letter-spacing:.3em; text-transform:uppercase; color:var(--gold-deep); margin-bottom:10px; }
-.coord dd{
-  margin:0; font-family:var(--display); font-size:clamp(20px,2.6vw,26px);
-  color:var(--paper); letter-spacing:.01em;
-}
-.coord dd small{
-  display:block; margin-top:8px;
-  font-family:var(--sans); font-size:11px; letter-spacing:.16em;
-  text-transform:uppercase; color:var(--paper-faint);
-}
-
 form{ display:grid; gap:22px; }
 .field{ display:grid; gap:9px; }
 .field label{
@@ -1025,7 +1012,7 @@ form{ display:grid; gap:22px; }
   .grid-2.top{ align-items:start; }
   .grid-3{ grid-template-columns:repeat(3,1fr); }
   .sec-head{ grid-template-columns:1.2fr .8fr; }
-  .contact-grid{ grid-template-columns:.8fr 1.2fr; align-items:start; }
+  .contact-grid{ max-width:640px; }
   .quiet{ grid-template-columns:1.05fr .95fr; align-items:start; }
   .foot-top{ grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr); align-items:start; }
   .scrollcue{ display:flex; }
@@ -1833,25 +1820,6 @@ form{ display:grid; gap:22px; }
     </div>
 
     <div class="contact-grid">
-      <div class="rv">
-        <dl class="coord">
-          <div>
-            <dt>Teléfono</dt>
-            <!-- a sustituir por los datos de contacto reales -->
-            <dd>07 XX XX XX XX<small>Número por completar</small></dd>
-          </div>
-          <div>
-            <dt>Correo electrónico</dt>
-            <!-- a sustituir por los datos de contacto reales -->
-            <dd>contact@lincolnluxury.fr<small>Dirección por completar</small></dd>
-          </div>
-          <div>
-            <dt>Zona</dt>
-            <dd>Burdeos, Gironda y el viñedo<small>Desplazamientos bajo petición</small></dd>
-          </div>
-        </dl>
-      </div>
-
       <div class="rv" data-d="1">
         <form id="form" novalidate>
           <div class="row-2">
@@ -1869,8 +1837,8 @@ form{ display:grid; gap:22px; }
 
           <div class="row-2">
             <div class="field">
-              <label for="f-phone">Teléfono</label>
-              <input id="f-phone" name="phone" type="tel" autocomplete="tel" placeholder="Opcional" aria-describedby="e-phone">
+              <label for="f-phone">Teléfono <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" placeholder="Su número de teléfono" required aria-describedby="e-phone">
               <span class="err" id="e-phone" role="status"></span>
             </div>
             <div class="field">
@@ -2183,7 +2151,10 @@ form{ display:grid; gap:22px; }
     watched.forEach(function (section) { spyObserver.observe(section); });
   }
 
-  /* ---------- formulario: validación en línea, sin backend ---------- */
+  /* ---------- formulario: validación en línea + envío a Google Sheets ---------- */
+  /* URL del despliegue de Google Apps Script (ver README, sección
+     «Formulario -> Google Sheets»); el envío queda bloqueado hasta rellenarla. */
+  var GOOGLE_SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbwEHdL1FO_d-Ik9CgBHd_H99Vovw17i1XyS39Q5g7K-T-TlD09_aZbsi0VvsCjTkDer/exec";
   var form = document.getElementById("form");
   var sent = document.getElementById("sent");
   var again = document.getElementById("again");
@@ -2204,7 +2175,7 @@ form{ display:grid; gap:22px; }
       return "";
     },
     "f-phone": function (v) {
-      if (!v.trim()) { return ""; }
+      if (!v.trim()) { return "Indique su número de teléfono."; }
       if (v.replace(/[^0-9]/g, "").length < 6) { return "Este número parece incompleto."; }
       return "";
     },
@@ -2274,18 +2245,47 @@ form{ display:grid; gap:22px; }
       return;
     }
 
+    if (!/^https:\/\/script\.google\.com\//.test(GOOGLE_SHEETS_ENDPOINT)) {
+      formError.textContent = "El formulario todavía no está conectado. Contáctenos directamente.";
+      return;
+    }
+
     submit.dataset.loading = "true";
     submitLabel.textContent = "Enviando";
 
-    /* sin backend: la confirmación es local.
-       Conectar aquí el envío real (correo electrónico o un servicio de formularios). */
-    window.setTimeout(function () {
+    var payload = {
+      name: document.getElementById("f-name").value.trim(),
+      email: document.getElementById("f-email").value.trim(),
+      phone: document.getElementById("f-phone").value.trim(),
+      service: document.getElementById("f-service").value,
+      dates: document.getElementById("f-dates").value.trim(),
+      pax: document.getElementById("f-pax").value.trim(),
+      message: document.getElementById("f-msg").value.trim(),
+      lang: document.documentElement.lang || "es",
+      page: window.location.href,
+      submittedAt: new Date().toISOString()
+    };
+
+    /* Envío a Google Sheets mediante un despliegue de Google Apps Script.
+       El modo "no-cors" + Content-Type text/plain evita el preflight CORS
+       que Apps Script no gestiona; la respuesta es por tanto opaca (no se
+       puede leer su estado), solo un fallo de red llega a .catch(). */
+    fetch(GOOGLE_SHEETS_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    }).then(function () {
       submit.dataset.loading = "false";
       submitLabel.textContent = "Enviar solicitud";
       form.hidden = true;
       sent.hidden = false;
       sent.focus();
-    }, reduced ? 60 : 700);
+    }).catch(function () {
+      submit.dataset.loading = "false";
+      submitLabel.textContent = "Enviar solicitud";
+      formError.textContent = "El envío ha fallado. Inténtelo de nuevo o contáctenos directamente.";
+    });
   });
 
   again.addEventListener("click", function () {
@@ -2315,12 +2315,12 @@ form{ display:grid; gap:22px; }
   "@type": "LimousineService",
   "name": "Lincoln Luxury",
   "description": "Wine tours por el viñedo de Burdeos y transporte privado con chófer en un Mercedes Clase S.",
-  "url": "https://www.lincolnluxury.fr/es/",
-  "image": "https://www.lincolnluxury.fr/assets/img/bordeaux-place-de-la-bourse-nuit-2400.jpg",
+  "url": "https://www.lincoln-luxury.fr/es/",
+  "image": "https://www.lincoln-luxury.fr/assets/img/bordeaux-place-de-la-bourse-nuit-2400.jpg",
   "areaServed": { "@type": "AdministrativeArea", "name": "Burdeos y Gironda" },
   "address": { "@type": "PostalAddress", "addressLocality": "Bordeaux", "addressCountry": "FR" },
   "telephone": "07 XX XX XX XX",
-  "email": "contact@lincolnluxury.fr",
+  "email": "contact@lincoln-luxury.fr",
   "knowsLanguage": ["fr", "en", "es"],
   "makesOffer": [
     { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Wine tours por el viñedo de Burdeos" } },
