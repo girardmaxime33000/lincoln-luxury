@@ -198,11 +198,12 @@ formules natives Google Sheets (`QUERY`, `COUNTIFS`) — donc modifiable
 librement ensuite directement dans Sheets.
 
 Mise en page pensée pour une consultation sur mobile : tout est empilé
-verticalement dans les deux seules colonnes visibles (A et B), sans jamais
-avoir besoin de scroller horizontalement dans l'appli Google Sheets. Les
-10 dernières demandes s'affichent en petites cartes (une par ligne) plutôt
-qu'en tableau large. Les colonnes C à L sont masquées : elles servent
-uniquement de zone technique interne à ces cartes.
+verticalement dans la seule colonne visible (A), sans aucune cellule
+fusionnée et sans jamais avoir besoin de scroller horizontalement dans
+l'appli Google Sheets. Les 10 dernières demandes s'affichent en petites
+cartes (une par ligne) plutôt qu'en tableau large. Les colonnes B à N sont
+masquées : elles servent uniquement de zone de calcul interne (résultats
+bruts des `QUERY`) utilisée pour composer le texte affiché en colonne A.
 
 Pour le générer (ou le régénérer) :
 

@@ -181,98 +181,126 @@ function setupDashboard_() {
   var GOLD = "#c9a227";
   var BAND = "#f2f2f2";
 
-  // Largeurs pensées pour un écran de téléphone en portrait ; C:L masquées.
+  // Une seule colonne visible (A) : pas de cellules fusionnées (merge()
+  // provoque parfois des erreurs aléatoires côté API Google Sheets), donc
+  // aucun scroll horizontal possible, quel que soit l'écran. Les colonnes
+  // B à N sont masquées : elles ne servent que de zone de calcul interne
+  // (résultats bruts des QUERY), jamais affichées — chaque section lit sa
+  // propre paire de colonnes cachées pour composer une ligne de texte en
+  // colonne A (ex. "🔹 Aéroport — 4").
   sheet.setHiddenGridlines(true);
-  sheet.setColumnWidth(1, 190);
-  sheet.setColumnWidth(2, 110);
-  sheet.hideColumns(3, 10); // masque C à L
+  sheet.setColumnWidth(1, 260);
+  sheet.hideColumns(2, 13); // masque B à N
 
   // — En-tête —
-  sheet.getRange("A1:B1").merge()
-    .setValue("🚘 Lincoln Luxury — Dashboard")
+  sheet.getRange("A1").setValue("🚘 Lincoln Luxury — Dashboard")
     .setBackground(DARK).setFontColor(GOLD)
     .setFontSize(14).setFontWeight("bold")
     .setHorizontalAlignment("center").setVerticalAlignment("middle");
   sheet.setRowHeight(1, 36);
 
-  sheet.getRange("A2:B2").merge()
-    .setFormula("=\"Mis à jour le \"&TEXT(NOW(),\"dd/MM/yyyy à HH:mm\")")
+  sheet.getRange("A2").setFormula("=\"Mis à jour le \"&TEXT(NOW(),\"dd/MM/yyyy à HH:mm\")")
     .setFontStyle("italic").setFontColor("#666666")
     .setFontSize(9).setHorizontalAlignment("center");
 
-  // — Indicateurs clés —
+  // — Indicateurs clés — (chaque ligne est directement un texte complet,
+  // pas besoin d'une deuxième colonne).
   sectionHeader_(sheet, 4, "📊 Indicateurs clés", BAND);
-  var kpis = [
-    ["Total demandes", "=COUNTA(" + src + "!B2:B)"],
-    ["Aujourd'hui",
-      "=COUNTIFS(" + src + "!A2:A,\">=\"&TODAY()," + src + "!A2:A,\"<\"&TODAY()+1)"],
-    ["Cette semaine",
-      "=COUNTIFS(" + src + "!A2:A,\">=\"&TODAY()-WEEKDAY(TODAY(),3)," + src + "!A2:A,\"<\"&TODAY()+1)"],
-    ["Ce mois-ci",
-      "=COUNTIFS(" + src + "!A2:A,\">=\"&EOMONTH(TODAY(),-1)+1," + src + "!A2:A,\"<=\"&TODAY())"],
-    ["Moy. passagers", "=IFERROR(AVERAGE(" + src + "!G2:G),0)"]
+  var kpiFormulas = [
+    "=\"Total demandes : \"&COUNTA(" + src + "!B2:B)",
+    "=\"Aujourd'hui : \"&COUNTIFS(" + src + "!A2:A,\">=\"&TODAY()," + src + "!A2:A,\"<\"&TODAY()+1)",
+    "=\"Cette semaine : \"&COUNTIFS(" + src + "!A2:A,\">=\"&TODAY()-WEEKDAY(TODAY(),3)," + src + "!A2:A,\"<\"&TODAY()+1)",
+    "=\"Ce mois-ci : \"&COUNTIFS(" + src + "!A2:A,\">=\"&EOMONTH(TODAY(),-1)+1," + src + "!A2:A,\"<=\"&TODAY())",
+    "=\"Moy. passagers : \"&TEXT(IFERROR(AVERAGE(" + src + "!G2:G),0),\"0.#\")"
   ];
-  kpis.forEach(function (kpi, i) {
-    var r = 5 + i;
-    sheet.getRange(r, 1).setValue(kpi[0]).setFontWeight("bold");
-    sheet.getRange(r, 2).setFormula(kpi[1])
-      .setHorizontalAlignment("right").setNumberFormat("0.#");
+  kpiFormulas.forEach(function (f, i) {
+    sheet.getRange("A" + (5 + i)).setFormula(f);
   });
 
-  // — Par prestation (marge : lignes 12 à 27) —
+  // — Par prestation (jusqu'à 15 lignes, source cachée en colonnes C:D) —
   sectionHeader_(sheet, 11, "🚘 Par prestation", BAND);
-  sheet.getRange("A12").setFormula(
+  breakdownBlock_(sheet, "C",
     "=QUERY(" + src + "!A2:J,\"select E, count(A) where E is not null " +
-    "group by E order by count(A) desc label E 'Prestation', count(A) 'Nb'\",0)");
+    "group by E order by count(A) desc\",0)",
+    12, 15, "🔹");
 
-  // — Par langue (marge : lignes 29 à 39) —
+  // — Par langue (jusqu'à 6 lignes, source cachée en colonnes E:F) —
   sectionHeader_(sheet, 28, "🌐 Par langue", BAND);
-  sheet.getRange("A29").setFormula(
+  breakdownBlock_(sheet, "E",
     "=QUERY(" + src + "!A2:J,\"select I, count(A) where I is not null " +
-    "group by I order by count(A) desc label I 'Langue', count(A) 'Nb'\",0)");
+    "group by I order by count(A) desc\",0)",
+    29, 6, "🔹");
 
-  // — Par page source (marge : lignes 41 à 56) —
-  sectionHeader_(sheet, 40, "📍 Par page source", BAND);
-  sheet.getRange("A41").setFormula(
+  // — Par page source (jusqu'à 10 lignes, source cachée en colonnes G:H) —
+  sectionHeader_(sheet, 36, "📍 Par page source", BAND);
+  breakdownBlock_(sheet, "G",
     "=QUERY(" + src + "!A2:J,\"select J, count(A) where J is not null " +
-    "group by J order by count(A) desc label J 'Page', count(A) 'Nb'\",0)");
+    "group by J order by count(A) desc\",0)",
+    37, 10, "🔹");
 
-  // — Évolution mensuelle, plafonnée à 12 mois pour tenir dans sa marge —
-  sectionHeader_(sheet, 57, "📈 Évolution (12 derniers mois)", BAND);
-  sheet.getRange("A58").setFormula(
+  // — Évolution mensuelle, plafonnée à 12 mois (source cachée en I:J) —
+  sectionHeader_(sheet, 48, "📈 Évolution (12 derniers mois)", BAND);
+  breakdownBlock_(sheet, "I",
     "=QUERY({" + src + "!A2:A, TEXT(" + src + "!A2:A,\"mmm yyyy\")}," +
     "\"select Col2, count(Col1) where Col1 is not null group by Col2 " +
-    "order by max(Col1) desc limit 12 label Col2 'Mois', count(Col1) 'Nb'\",0)");
+    "order by max(Col1) desc limit 12\",0)",
+    49, 12, "📈");
 
-  // — 10 dernières demandes, en cartes verticales (pas un tableau large) —
-  sectionHeader_(sheet, 73, "🆕 10 dernières demandes", BAND);
-  // Zone technique masquée (colonnes H:K) : source des cartes ci-dessous,
-  // ne s'affiche jamais à l'écran (colonnes masquées plus haut).
-  sheet.getRange("H74").setFormula(
-    "=QUERY(" + src + "!A2:J,\"select A, B, D, E order by A desc limit 10\",0)");
-
-  for (var i = 0; i < 10; i++) {
-    var row = 75 + i;
-    var card = sheet.getRange(row, 1, 1, 2).merge();
-    card.setFormula(
-      "=IF(H" + row + "=\"\",\"\",\"📅 \"&TEXT(H" + row + ",\"dd/MM\")&\"   👤 \"&I" + row +
-      "&CHAR(10)&\"📞 \"&J" + row + "&\"   🚘 \"&K" + row + ")"
-    );
-    card.setWrap(true).setVerticalAlignment("middle").setFontSize(10);
-    sheet.setRowHeight(row, 34);
-  }
+  // — 10 dernières demandes, en cartes (source cachée en colonnes K:N) —
+  sectionHeader_(sheet, 62, "🆕 10 dernières demandes", BAND);
+  recentLeadsBlock_(sheet,
+    "=QUERY(" + src + "!A2:J,\"select A, B, D, E order by A desc limit 10\",0)",
+    63, 10);
 
   sheet.setFrozenRows(1);
 }
 
-/** Bandeau de titre de section, sur 2 colonnes fusionnées (usage interne). */
+/** Bandeau de titre de section, sur la seule colonne A (usage interne). */
 function sectionHeader_(sheet, row, title, bg) {
-  sheet.getRange(row, 1, 1, 2).merge()
-    .setValue(title)
+  sheet.getRange("A" + row).setValue(title)
     .setBackground(bg)
     .setFontWeight("bold")
     .setFontSize(11)
-    .setVerticalAlignment("middle")
-    .setBorder(false, false, true, false, false, false, "#cccccc", SpreadsheetApp.BorderStyle.SOLID);
+    .setVerticalAlignment("middle");
   sheet.setRowHeight(row, 26);
+}
+
+/**
+ * Pose une QUERY à 2 colonnes (label, nombre) dans une paire de colonnes
+ * cachées à partir de helperCol, puis affiche en colonne A, à partir de
+ * visibleStartRow, jusqu'à `budget` lignes de texte "emoji label — nombre"
+ * (vide si la QUERY a renvoyé moins de lignes que le budget). Usage interne.
+ */
+function breakdownBlock_(sheet, helperCol, sourceFormula, visibleStartRow, budget, emoji) {
+  var col2 = String.fromCharCode(helperCol.charCodeAt(0) + 1);
+  sheet.getRange(helperCol + "1").setFormula(sourceFormula);
+  for (var j = 1; j <= budget; j++) {
+    var visibleRow = visibleStartRow + j - 1;
+    var helperRow = j + 1; // +1 : la ligne 1 de la QUERY est son en-tête.
+    sheet.getRange("A" + visibleRow).setFormula(
+      "=IF(" + helperCol + helperRow + "=\"\",\"\",\"" + emoji + " \"&" +
+      helperCol + helperRow + "&\" — \"&" + col2 + helperRow + ")"
+    );
+  }
+}
+
+/**
+ * Pose une QUERY à 4 colonnes (date, nom, téléphone, prestation) dans les
+ * colonnes cachées K:N, puis affiche en colonne A, à partir de
+ * visibleStartRow, jusqu'à `budget` cartes sur 2 lignes chacune. Usage
+ * interne, complément de breakdownBlock_ pour un format à 4 champs.
+ */
+function recentLeadsBlock_(sheet, sourceFormula, visibleStartRow, budget) {
+  sheet.getRange("K1").setFormula(sourceFormula);
+  for (var j = 1; j <= budget; j++) {
+    var visibleRow = visibleStartRow + j - 1;
+    var helperRow = j + 1;
+    var cell = sheet.getRange("A" + visibleRow);
+    cell.setFormula(
+      "=IF(K" + helperRow + "=\"\",\"\",\"📅 \"&TEXT(K" + helperRow + ",\"dd/MM\")&\"   👤 \"&L" +
+      helperRow + "&CHAR(10)&\"📞 \"&M" + helperRow + "&\"   🚘 \"&N" + helperRow + ")"
+    );
+    cell.setWrap(true).setFontSize(10);
+    sheet.setRowHeight(visibleRow, 34);
+  }
 }
