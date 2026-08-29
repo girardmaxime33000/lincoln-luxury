@@ -1,12 +1,19 @@
 /**
  * Reçoit les soumissions du formulaire de contact du site Lincoln Luxury
- * (POST en JSON, envoyé par le `fetch()` des 4 pages index.html) et les
+ * (POST en JSON, envoyé par le `fetch()` des 4 pages index.html), les
  * ajoute comme nouvelle ligne dans la feuille active du classeur auquel
- * ce script est lié.
+ * ce script est lié, puis envoie une notification par e-mail avec le
+ * détail de la demande.
  *
  * Installation : voir la section « Formulaire -> Google Sheets » du
  * README à la racine du dépôt.
  */
+
+// Adresse qui reçoit une notification à chaque nouvelle demande.
+// Laisser vide ("") pour désactiver l'envoi d'e-mail (seule la feuille
+// Google Sheets sera alors mise à jour).
+var NOTIFY_EMAIL = "email-a-completer@example.com";
+
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
@@ -38,7 +45,49 @@ function doPost(e) {
     data.page || ""
   ]);
 
+  if (NOTIFY_EMAIL && NOTIFY_EMAIL.indexOf("@") > -1) {
+    try {
+      sendNotificationEmail(data);
+    } catch (mailErr) {
+      // Une erreur d'envoi d'e-mail ne doit pas empêcher l'enregistrement
+      // dans la feuille : elle est simplement journalisée.
+      console.error("Échec de l'envoi de la notification : " + mailErr);
+    }
+  }
+
   return ContentService
     .createTextOutput(JSON.stringify({ result: "success" }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Envoie un e-mail récapitulant la demande à NOTIFY_EMAIL, avec le
+ * courriel du client en "répondre à" pour pouvoir lui répondre directement.
+ */
+function sendNotificationEmail(data) {
+  var subject = "Nouvelle demande — " + (data.name || "site Lincoln Luxury");
+
+  var body = [
+    "Nouvelle demande reçue depuis le site Lincoln Luxury.",
+    "",
+    "Nom : " + (data.name || "—"),
+    "Courriel : " + (data.email || "—"),
+    "Téléphone : " + (data.phone || "—"),
+    "Prestation : " + (data.service || "—"),
+    "Dates envisagées : " + (data.dates || "—"),
+    "Nombre de passagers : " + (data.pax || "—"),
+    "",
+    "Message :",
+    data.message || "—",
+    "",
+    "— — —",
+    "Langue de la page : " + (data.lang || "—"),
+    "Page : " + (data.page || "—"),
+    "Reçu le : " + (data.submittedAt || new Date().toISOString())
+  ].join("\n");
+
+  var mail = { to: NOTIFY_EMAIL, subject: subject, body: body };
+  if (data.email) { mail.replyTo = data.email; }
+
+  MailApp.sendEmail(mail);
 }

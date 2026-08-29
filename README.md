@@ -124,10 +124,18 @@ déploiement Apps Script.
    `es/index.html`, `zh/index.html`) — cherche
    `URL_DU_DEPLOIEMENT_APPS_SCRIPT_A_COMPLETER` et remplace par l'URL
    copiée à l'étape précédente.
+6. Dans `Code.gs` (directement dans l'éditeur Apps Script), renseigne la
+   constante `NOTIFY_EMAIL` en haut du fichier avec l'adresse qui doit
+   recevoir une notification à chaque demande, puis enregistre et
+   redéploie (**Gérer les déploiements → modifier → Nouvelle version**,
+   voir plus bas — cela ne change pas l'URL). Laisse `NOTIFY_EMAIL = ""`
+   si tu ne veux pas de notification par e-mail (seule la feuille Google
+   Sheets sera alors mise à jour).
 
-Tant que cette URL n'est pas renseignée, le formulaire refuse l'envoi et
-affiche un message expliquant qu'il n'est pas encore connecté (visible en
-local, donc facile à repérer avant mise en ligne).
+Tant que l'URL de déploiement n'est pas renseignée dans les fichiers HTML,
+le formulaire refuse l'envoi et affiche un message expliquant qu'il n'est
+pas encore connecté (visible en local, donc facile à repérer avant mise en
+ligne).
 
 ### Fonctionnement
 
@@ -145,12 +153,23 @@ local, donc facile à repérer avant mise en ligne).
   existante reste valide (sinon il faut mettre à jour les 4 fichiers HTML
   avec la nouvelle URL).
 
-### Redirection vers une adresse e-mail (optionnel)
+### Notification par e-mail
 
-Le script peut aussi envoyer un e-mail de notification à chaque nouvelle
-demande, avec `MailApp.sendEmail(...)`, en l'ajoutant à la fonction
-`doPost` — non inclus par défaut pour rester simple ; demande si tu veux
-cette variante.
+À chaque demande enregistrée dans la feuille, le script envoie aussi un
+e-mail récapitulatif (nom, courriel, téléphone, prestation, dates,
+passagers, message, langue, page) à l'adresse définie dans `NOTIFY_EMAIL`
+(en haut de `Code.gs`). L'e-mail du client est placé en « répondre à », donc
+répondre directement à la notification répond au client.
+
+- L'e-mail est envoyé depuis le compte Google propriétaire du script
+  (celui utilisé lors du déploiement), avec la limite quotidienne standard
+  de `MailApp` pour un compte Google gratuit (100 e-mails/jour) — largement
+  suffisant pour un formulaire de contact.
+- Un échec d'envoi d'e-mail n'empêche jamais l'écriture dans la feuille
+  Google Sheets : la feuille reste la source de vérité si un e-mail se
+  perd.
+- Pour couper les notifications sans toucher au reste, vide `NOTIFY_EMAIL`
+  (`NOTIFY_EMAIL = "";`) et redéploie une nouvelle version.
 
 ## Développement local
 
