@@ -130,6 +130,12 @@ function testerNotification() {
  * LEADS_SHEET_NAME : indicateurs clés, répartitions par prestation/langue/
  * page, évolution mensuelle et dernières demandes.
  *
+ * Mise en page pensée pour une consultation sur mobile : tout est empilé
+ * verticalement dans les deux seules colonnes visibles (A et B) — aucun
+ * scroll horizontal nécessaire dans l'appli Google Sheets. Les colonnes
+ * C à L sont masquées ; elles ne servent que de zone technique pour la
+ * carte "dernières demandes" (voir plus bas) et ne s'affichent jamais.
+ *
  * À lancer une seule fois manuellement depuis l'éditeur Apps Script
  * (sélectionner "setupDashboard" dans le menu déroulant à côté du bouton
  * Exécuter, puis cliquer sur Exécuter). Une fois généré, l'onglet ne
@@ -137,7 +143,12 @@ function testerNotification() {
  * Google Sheets, relancer la fonction l'écrase et le régénère à l'identique.
  *
  * Si tu renommes l'onglet des demandes, mets à jour LEADS_SHEET_NAME en
- * haut de ce fichier avant de relancer setupDashboard.
+ * haut de ce fichier avant de relancer setupDashboard. Les sections sont
+ * espacées par des marges fixes généreuses (10 à 15 lignes) : si un jour
+ * une section affiche plus de lignes que sa marge (beaucoup plus de types
+ * de prestation, par ex.), une erreur "résultat du tableau non développé"
+ * apparaît sur la formule concernée — il suffit alors d'espacer davantage
+ * les numéros de ligne ci-dessous.
  */
 function setupDashboard() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -147,59 +158,109 @@ function setupDashboard() {
   var sheet = ss.getSheetByName(name);
   if (sheet) {
     sheet.clear();
+    sheet.clearFormats();
   } else {
     sheet = ss.insertSheet(name);
   }
   ss.setActiveSheet(sheet);
   ss.moveActiveSheet(1);
 
-  sheet.getRange("A1").setValue("Dashboard — Lincoln Luxury")
-    .setFontSize(16).setFontWeight("bold");
-  sheet.getRange("A2").setValue("Dernière mise à jour :").setFontStyle("italic");
-  sheet.getRange("B2").setFormula("=NOW()").setNumberFormat("dd/MM/yyyy HH:mm");
+  var DARK = "#1c1c1c";
+  var GOLD = "#c9a227";
+  var BAND = "#f2f2f2";
 
-  // Indicateurs clés.
-  sheet.getRange("A4").setValue("Indicateurs clés").setFontWeight("bold");
+  // Largeurs pensées pour un écran de téléphone en portrait ; C:L masquées.
+  sheet.setHiddenGridlines(true);
+  sheet.setColumnWidth(1, 190);
+  sheet.setColumnWidth(2, 110);
+  sheet.hideColumns(3, 10); // masque C à L
+
+  // — En-tête —
+  sheet.getRange("A1:B1").merge()
+    .setValue("🚘 Lincoln Luxury — Dashboard")
+    .setBackground(DARK).setFontColor(GOLD)
+    .setFontSize(14).setFontWeight("bold")
+    .setHorizontalAlignment("center").setVerticalAlignment("middle");
+  sheet.setRowHeight(1, 36);
+
+  sheet.getRange("A2:B2").merge()
+    .setFormula("=\"Mis à jour le \"&TEXT(NOW(),\"dd/MM/yyyy à HH:mm\")")
+    .setFontStyle("italic").setFontColor("#666666")
+    .setFontSize(9).setHorizontalAlignment("center");
+
+  // — Indicateurs clés —
+  sectionHeader_(sheet, 4, "📊 Indicateurs clés", BAND);
   var kpis = [
     ["Total demandes", "=COUNTA(" + src + "!B2:B)"],
-    ["Demandes aujourd'hui",
+    ["Aujourd'hui",
       "=COUNTIFS(" + src + "!A2:A,\">=\"&TODAY()," + src + "!A2:A,\"<\"&TODAY()+1)"],
-    ["Demandes cette semaine",
+    ["Cette semaine",
       "=COUNTIFS(" + src + "!A2:A,\">=\"&TODAY()-WEEKDAY(TODAY(),3)," + src + "!A2:A,\"<\"&TODAY()+1)"],
-    ["Demandes ce mois-ci",
+    ["Ce mois-ci",
       "=COUNTIFS(" + src + "!A2:A,\">=\"&EOMONTH(TODAY(),-1)+1," + src + "!A2:A,\"<=\"&TODAY())"],
-    ["Moyenne passagers", "=IFERROR(AVERAGE(" + src + "!G2:G),0)"]
+    ["Moy. passagers", "=IFERROR(AVERAGE(" + src + "!G2:G),0)"]
   ];
-  sheet.getRange(5, 1, kpis.length, 2).setValues(kpis);
-  sheet.getRange(5, 1, kpis.length, 1).setFontWeight("bold");
+  kpis.forEach(function (kpi, i) {
+    var r = 5 + i;
+    sheet.getRange(r, 1).setValue(kpi[0]).setFontWeight("bold");
+    sheet.getRange(r, 2).setFormula(kpi[1])
+      .setHorizontalAlignment("right").setNumberFormat("0.#");
+  });
 
-  // Les 4 tableaux ci-dessous sont posés côte à côte (pas les uns sous les
-  // autres) pour qu'ils puissent grandir en hauteur sans jamais se chevaucher.
-  sheet.getRange("A12").setValue("Par prestation").setFontWeight("bold");
-  sheet.getRange("A13").setFormula(
+  // — Par prestation (marge : lignes 12 à 27) —
+  sectionHeader_(sheet, 11, "🚘 Par prestation", BAND);
+  sheet.getRange("A12").setFormula(
     "=QUERY(" + src + "!A2:J,\"select E, count(A) where E is not null " +
-    "group by E order by count(A) desc label E 'Prestation', count(A) 'Nombre'\",0)");
+    "group by E order by count(A) desc label E 'Prestation', count(A) 'Nb'\",0)");
 
-  sheet.getRange("D12").setValue("Par langue").setFontWeight("bold");
-  sheet.getRange("D13").setFormula(
+  // — Par langue (marge : lignes 29 à 39) —
+  sectionHeader_(sheet, 28, "🌐 Par langue", BAND);
+  sheet.getRange("A29").setFormula(
     "=QUERY(" + src + "!A2:J,\"select I, count(A) where I is not null " +
-    "group by I order by count(A) desc label I 'Langue', count(A) 'Nombre'\",0)");
+    "group by I order by count(A) desc label I 'Langue', count(A) 'Nb'\",0)");
 
-  sheet.getRange("G12").setValue("Par page source").setFontWeight("bold");
-  sheet.getRange("G13").setFormula(
+  // — Par page source (marge : lignes 41 à 56) —
+  sectionHeader_(sheet, 40, "📍 Par page source", BAND);
+  sheet.getRange("A41").setFormula(
     "=QUERY(" + src + "!A2:J,\"select J, count(A) where J is not null " +
-    "group by J order by count(A) desc label J 'Page', count(A) 'Nombre'\",0)");
+    "group by J order by count(A) desc label J 'Page', count(A) 'Nb'\",0)");
 
-  sheet.getRange("J12").setValue("Évolution mensuelle").setFontWeight("bold");
-  sheet.getRange("J13").setFormula(
-    "=QUERY(" + src + "!A2:J,\"select year(A), month(A)+1, count(A) where A is not null " +
-    "group by year(A), month(A)+1 order by year(A), month(A)+1 " +
-    "label year(A) 'Année', month(A)+1 'Mois', count(A) 'Nombre'\",0)");
+  // — Évolution mensuelle, plafonnée à 12 mois pour tenir dans sa marge —
+  sectionHeader_(sheet, 57, "📈 Évolution (12 derniers mois)", BAND);
+  sheet.getRange("A58").setFormula(
+    "=QUERY({" + src + "!A2:A, TEXT(" + src + "!A2:A,\"mmm yyyy\")}," +
+    "\"select Col2, count(Col1) where Col1 is not null group by Col2 " +
+    "order by max(Col1) desc limit 12 label Col2 'Mois', count(Col1) 'Nb'\",0)");
 
-  sheet.getRange("N12").setValue("10 dernières demandes").setFontWeight("bold");
-  sheet.getRange("N13").setFormula(
-    "=QUERY(" + src + "!A2:J,\"select A, B, C, D, E, G order by A desc limit 10 " +
-    "label A 'Date', B 'Nom', C 'Courriel', D 'Téléphone', E 'Prestation', G 'Passagers'\",0)");
+  // — 10 dernières demandes, en cartes verticales (pas un tableau large) —
+  sectionHeader_(sheet, 73, "🆕 10 dernières demandes", BAND);
+  // Zone technique masquée (colonnes H:K) : source des cartes ci-dessous,
+  // ne s'affiche jamais à l'écran (colonnes masquées plus haut).
+  sheet.getRange("H74").setFormula(
+    "=QUERY(" + src + "!A2:J,\"select A, B, D, E order by A desc limit 10\",0)");
 
-  sheet.autoResizeColumns(1, 19);
+  for (var i = 0; i < 10; i++) {
+    var row = 75 + i;
+    var card = sheet.getRange(row, 1, 1, 2).merge();
+    card.setFormula(
+      "=IF(H" + row + "=\"\",\"\",\"📅 \"&TEXT(H" + row + ",\"dd/MM\")&\"   👤 \"&I" + row +
+      "&CHAR(10)&\"📞 \"&J" + row + "&\"   🚘 \"&K" + row + ")"
+    );
+    card.setWrap(true).setVerticalAlignment("middle").setFontSize(10);
+    sheet.setRowHeight(row, 34);
+  }
+
+  sheet.setFrozenRows(1);
+}
+
+/** Bandeau de titre de section, sur 2 colonnes fusionnées (usage interne). */
+function sectionHeader_(sheet, row, title, bg) {
+  sheet.getRange(row, 1, 1, 2).merge()
+    .setValue(title)
+    .setBackground(bg)
+    .setFontWeight("bold")
+    .setFontSize(11)
+    .setVerticalAlignment("middle")
+    .setBorder(false, false, true, false, false, false, "#cccccc", SpreadsheetApp.BorderStyle.SOLID);
+  sheet.setRowHeight(row, 26);
 }

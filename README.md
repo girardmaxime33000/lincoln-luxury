@@ -197,6 +197,13 @@ demandes reçues (indicateurs clés, répartitions par prestation/langue/page,
 formules natives Google Sheets (`QUERY`, `COUNTIFS`) — donc modifiable
 librement ensuite directement dans Sheets.
 
+Mise en page pensée pour une consultation sur mobile : tout est empilé
+verticalement dans les deux seules colonnes visibles (A et B), sans jamais
+avoir besoin de scroller horizontalement dans l'appli Google Sheets. Les
+10 dernières demandes s'affichent en petites cartes (une par ligne) plutôt
+qu'en tableau large. Les colonnes C à L sont masquées : elles servent
+uniquement de zone technique interne à ces cartes.
+
 Pour le générer (ou le régénérer) :
 
 1. Vérifie que `LEADS_SHEET_NAME` (en haut de `Code.gs`) correspond bien au
