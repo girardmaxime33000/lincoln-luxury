@@ -20,7 +20,19 @@ var NOTIFY_EMAIL = "girard.maxime33@gmail.com,driver.lincoln-luxury@outlook.com"
 var LEADS_SHEET_NAME = "Sheet1";
 
 function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  // Cible explicitement l'onglet des leads par son nom : getActiveSheet()
+  // renvoie l'onglet actuellement sélectionné dans Google Sheets (celui
+  // ouvert par le dernier utilisateur), qui peut très bien être
+  // "Dashboard" plutôt que "Sheet1" au moment où le formulaire est soumis.
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LEADS_SHEET_NAME);
+  if (!sheet) {
+    // Onglet introuvable (renommé ?) : on log l'erreur plutôt que de
+    // planter silencieusement en écrivant au mauvais endroit.
+    console.error("Onglet \"" + LEADS_SHEET_NAME + "\" introuvable (LEADS_SHEET_NAME).");
+    return ContentService
+      .createTextOutput(JSON.stringify({ result: "error", message: "Sheet not found" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 
   var headers = [
     "Date", "Nom", "Courriel", "Téléphone", "Prestation",
