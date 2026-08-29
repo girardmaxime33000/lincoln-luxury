@@ -12,7 +12,7 @@
 // Adresse qui reçoit une notification à chaque nouvelle demande.
 // Laisser vide ("") pour désactiver l'envoi d'e-mail (seule la feuille
 // Google Sheets sera alors mise à jour).
-var NOTIFY_EMAIL = "email-a-completer@example.com";
+var NOTIFY_EMAIL = "girard.maxime33@gmail.com";
 
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
