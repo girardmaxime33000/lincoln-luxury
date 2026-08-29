@@ -536,6 +536,28 @@ p{ margin:0; text-wrap:pretty; }
 .is-ready .hero-foot{ opacity:1; }
 .hero-foot .hl{ color:var(--paper-dim); }
 
+/* ---------- estimation rapide dans le hero (façon barre de recherche) ---------- */
+.hero-quote{
+  display:flex; flex-wrap:wrap; align-items:flex-end; gap:18px 24px;
+  max-width:640px;
+  margin-top:clamp(28px,4vh,40px);
+  padding:20px 22px;
+  border:1px solid var(--line);
+  background:rgba(5,5,5,.28);
+  -webkit-backdrop-filter:blur(6px);
+  backdrop-filter:blur(6px);
+  opacity:0; transform:translateY(18px);
+  transition:opacity 1s var(--ease-soft) .78s, transform 1s var(--ease-soft) .78s;
+}
+.is-ready .hero-quote{ opacity:1; transform:none; }
+.hero-quote .field{ flex:1 1 240px; min-width:200px; }
+.hero-quote .field label{ color:var(--paper-faint); }
+.hero-quote .btn{ flex:none; }
+@media (max-width:599px){
+  .hero-quote{ flex-direction:column; align-items:stretch; padding:18px; }
+  .hero-quote .btn{ justify-content:center; }
+}
+
 .scrollcue{
   position:absolute; right:var(--gut); bottom:clamp(40px,7vh,88px);
   display:none; flex-direction:column; align-items:center; gap:12px;
@@ -953,6 +975,19 @@ form{ display:grid; gap:22px; }
 .row-2{ display:grid; grid-template-columns:1fr; gap:22px; }
 .row-3{ display:grid; grid-template-columns:1fr; gap:22px; }
 
+/* ---------- bandeau de réassurance (au-dessus du formulaire de contact) ---------- */
+.trust-bar{
+  display:flex; flex-wrap:wrap; gap:12px 26px;
+  list-style:none; margin:0 0 34px; padding:0;
+  font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--paper-dim);
+}
+.trust-bar li{ display:flex; align-items:center; gap:10px; }
+.trust-bar li::before{
+  content:""; display:block; width:4px; height:4px; flex:none;
+  background:var(--gold); transform:rotate(45deg);
+}
+
 /* ---------- simulateur de devis : radios/case à cocher inline + encart estimation ---------- */
 .radio-group{ display:flex; gap:24px; flex-wrap:wrap; padding-top:2px; }
 .field label.check-inline{
@@ -1002,6 +1037,34 @@ form{ display:grid; gap:22px; }
 .legal{ margin-top:clamp(36px,4vw,52px); }
 .legal .body{ max-width:78ch; }
 .legal h2{ font-size:19px; margin-bottom:14px; }
+
+/* ---------- barre d'appel à l'action fixe (mobile/tablette) ---------- */
+.mobile-cta{
+  position:fixed; left:0; right:0; bottom:0; z-index:95;
+  transform:translateZ(0);
+  display:flex;
+  background:var(--overlay-soft);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);
+  backdrop-filter:blur(18px) saturate(120%);
+  border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+.mobile-cta__link{
+  flex:1; display:flex; align-items:center; justify-content:center; gap:9px;
+  padding:15px 10px;
+  font-family:var(--sans); font-size:11.5px; font-weight:400;
+  letter-spacing:.14em; text-transform:uppercase;
+  white-space:nowrap; color:var(--paper);
+  transition:background-color .4s var(--ease);
+}
+.mobile-cta__link svg{ width:15px; height:15px; flex:none; }
+.mobile-cta__link--quote{ background:var(--gold); color:#0A0A0B; }
+@media (max-width:1179px){
+  body{ padding-bottom:60px; }
+}
+@media (min-width:1180px){
+  .mobile-cta{ display:none; }
+}
 
 /* ---------- révélation au scroll ---------- */
 
@@ -1140,6 +1203,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </header>
 
+<!-- ===================== BARRA DE LLAMADA A LA ACCIÓN FIJA (móvil/tableta) =====================
+     Número de teléfono de marcador de posición: sustituir por el número
+     real (en el href="tel:" Y en el texto mostrado) antes de la puesta en línea. -->
+<div class="mobile-cta">
+  <a class="mobile-cta__link mobile-cta__link--call" href="tel:+33700000000">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1L6.6 10.8Z"/>
+    </svg>
+    <span>07 XX XX XX XX</span>
+  </a>
+  <a class="mobile-cta__link mobile-cta__link--quote" href="index.html#contact">
+    <span>Presupuesto instantáneo</span>
+  </a>
+</div>
+
 <!-- ===================== MENÚ A PANTALLA COMPLETA ===================== -->
 <div class="nav-overlay" id="menu" role="dialog" aria-modal="true" aria-label="Menú de navegación" inert>
   <nav aria-label="Navegación móvil">
@@ -1158,7 +1236,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <span>Burdeos y viñedo</span>
     <span class="gold-dot" aria-hidden="true"></span>
     <!-- a sustituir por los datos de contacto reales -->
-    <span>07 XX XX XX XX</span>
+    <a href="tel:+33700000000">07 XX XX XX XX</a>
   </div>
 </div>
 
@@ -1199,6 +1277,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <a class="btn btn--solid" href="index.html#contact"><span>Reservar un wine tour</span><span class="arrow" aria-hidden="true">&rarr;</span></a>
       <a class="btn btn--ghost" href="index.html#classe-s"><span>El Clase S</span></a>
     </div>
+
+    <form class="hero-quote" id="hero-quote" aria-label="Estimar un precio">
+      <div class="field">
+        <label for="hero-service">Estimar un precio</label>
+        <select id="hero-service">
+          <option value="" selected>Elegir un servicio</option>
+          <option value="Chófer a disposición (Wine tour)">Chófer a disposición (Wine tour)</option>
+          <option value="Traslado a aeropuerto o estación">Traslado a aeropuerto o estación</option>
+          <option value="Traslado a un destino">Traslado a un destino</option>
+          <option value="Otra solicitud">Otra solicitud</option>
+        </select>
+      </div>
+      <button class="btn btn--solid" type="submit"><span>Ver el precio</span><span class="arrow" aria-hidden="true">&rarr;</span></button>
+    </form>
 
     <p class="hero-foot">
       <span class="hl">Una clientela exigente que exige discreción</span>
@@ -1833,7 +1925,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </details>
       <details>
         <summary>¿Cuáles son sus tarifas?<span class="sign" aria-hidden="true"></span></summary>
-        <div class="answer"><p class="body">Cada solicitud da lugar a una propuesta hecha a medida, según la duración, el itinerario y el número de pasajeros. Se la enviamos antes de cualquier reserva.</p></div>
+        <div class="answer"><p class="body">El chófer a disposición, los traslados a aeropuerto o estación y los trayectos hacia los principales destinos se estiman al instante en nuestro formulario de presupuesto, en cuanto elige el servicio. Para una solicitud a medida, le enviamos una propuesta antes de cualquier reserva.</p></div>
       </details>
       <details>
         <summary>¿Podemos contar con su discreción?<span class="sign" aria-hidden="true"></span></summary>
@@ -1863,6 +1955,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div class="contact-grid">
       <div class="rv" data-d="1">
+        <ul class="trust-bar">
+          <li>Presupuesto gratuito y sin compromiso</li>
+          <li>Respuesta personal en 24h</li>
+          <li>Discreción total, sin compartir datos</li>
+        </ul>
+
         <form id="form" novalidate>
           <div class="row-2">
             <div class="field">
@@ -2004,6 +2102,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           Wine tours por el viñedo de Burdeos y transporte privado con
           chófer, en un Mercedes Clase S.
         </p>
+        <!-- a sustituir por el número real (href="tel:" y texto mostrado) -->
+        <p style="margin-top:20px"><a class="link-under" href="tel:+33700000000">07 XX XX XX XX</a></p>
       </div>
       <nav class="foot-nav" aria-label="Pie de página">
         <a href="index.html#wine-tours">Wine tours</a>
@@ -2463,6 +2563,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   });
   updateServiceFields();
 
+  // Mini-estimateur du hero : une simple redirection vers le vrai
+  // simulateur, avec la prestation déjà présélectionnée si l'utilisateur
+  // en a choisi une. Aucun calcul dupliqué ici.
+  var heroQuoteForm = document.getElementById("hero-quote");
+  if (heroQuoteForm) {
+    heroQuoteForm.addEventListener("submit", function (evt) {
+      evt.preventDefault();
+      var heroService = document.getElementById("hero-service");
+      if (heroService && heroService.value) {
+        serviceSelect.value = heroService.value;
+        updateServiceFields();
+      }
+      var contactSection = document.getElementById("contact");
+      if (contactSection) { contactSection.scrollIntoView({ behavior: "smooth", block: "start" }); }
+      window.setTimeout(function () {
+        var firstField = document.getElementById("f-name");
+        if (firstField) { firstField.focus({ preventScroll: true }); }
+      }, 650);
+    });
+  }
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     formError.textContent = "";
@@ -2588,7 +2709,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     { "@type": "Question", "name": "¿Qué vehículo circula?", "acceptedAnswer": { "@type": "Answer", "text": "Un Mercedes Clase S. Somos los únicos en Burdeos que lo ofrecemos para este tipo de servicio, cuando el mercado local circula en Clase E." } },
     { "@type": "Question", "name": "¿Organizan ustedes las visitas a las bodegas?", "acceptedAnswer": { "@type": "Answer", "text": "Sí, preparamos el desarrollo con usted con antelación: las bodegas, el orden de las etapas, los tiempos de trayecto y de degustación." } },
     { "@type": "Question", "name": "¿Hacen algo más aparte de wine tours?", "acceptedAnswer": { "@type": "Answer", "text": "Sí. Traslados a aeropuerto y estación, chófer a disposición por media jornada o jornada completa, desplazamientos profesionales y veladas." } },
-    { "@type": "Question", "name": "¿Cuáles son sus tarifas?", "acceptedAnswer": { "@type": "Answer", "text": "Cada solicitud da lugar a una propuesta hecha a medida, según la duración, el itinerario y el número de pasajeros." } }
+    { "@type": "Question", "name": "¿Cuáles son sus tarifas?", "acceptedAnswer": { "@type": "Answer", "text": "El chófer a disposición, los traslados a aeropuerto o estación y los trayectos hacia los principales destinos se estiman al instante en nuestro formulario de presupuesto. Para una solicitud a medida, enviamos una propuesta antes de cualquier reserva." } }
   ]
 }
 </script>
