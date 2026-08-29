@@ -25,14 +25,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 (function(){
   try{
     var t = localStorage.getItem("lincoln-theme");
-    if(!t){ t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark"; }
+    if(!t){ t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light"; }
     document.documentElement.setAttribute("data-theme", t);
   }catch(e){}
 })();
 </script>
 <title>Lincoln Luxury — Wine Tours &amp; Luxury Chauffeur Service in Bordeaux</title>
 <meta name="description" content="Private wine tours and chauffeur service in Bordeaux, in a Mercedes S-Class. Hotel pickup, bespoke days through the vineyards, private driver and absolute discretion.">
-<meta name="theme-color" content="#050505">
+<meta name="theme-color" content="#F6F3EA">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.lincoln-luxury.fr/en/">
 
@@ -70,19 +70,22 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
    ============================================================ */
 
 :root{
-  --ink:        #050505;
-  --ink-2:      #0A0A0B;
-  --ink-3:      #101011;
-  --ink-4:      #17171A;
-  --paper:      #EDE9E1;
-  --paper-dim:  #A8A49B;
-  --paper-faint:#857F76;
-  --gold:       #C9A96E;
-  --gold-hi:    #E9D6AC;
-  --gold-deep:  #9C8250;
-  --line:       rgba(201,169,110,.20);
-  --line-soft:  rgba(237,233,225,.09);
-  --lede:       #D8D3CA;
+  /* fond clair, dominante crème — l'en-tête, le pied de page et la photo
+     du hero restent sombres (voir plus bas), tout le reste de la page
+     est clair par défaut */
+  --ink:        #F6F3EA;
+  --ink-2:      #C9DBF5;
+  --ink-3:      #FFFFFF;
+  --ink-4:      #10131A;
+  --paper:      #14140F;
+  --paper-dim:  #4B4A45;
+  --paper-faint:#726F65;
+  --gold:       #1652E0;
+  --gold-hi:    #3E74FF;
+  --gold-deep:  #0D3FB8;
+  --line:       rgba(20,20,15,.16);
+  --line-soft:  rgba(20,20,15,.08);
+  --lede:       #322F27;
 
   /* fonds clairs : crème et ivoire, pour faire respirer la page */
   --cream:      #F6F1E9;
@@ -99,50 +102,59 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   --gut: clamp(20px, 5vw, 72px);
   --max: 1280px;
 
+  --overlay:      rgba(246,243,234,.92);
+  --overlay-soft: rgba(246,243,234,.86);
+}
+
+/* ============================================================
+   MODE SOMBRE — bascule manuelle (voir le bouton dans l'en-tête).
+   Alternative "nuit" au thème clair par défaut : mêmes proportions,
+   palette inversée. Par défaut (aucun attribut), la page reste claire.
+   ============================================================ */
+:root[data-theme="dark"]{
+  --ink:        #050505;
+  --ink-2:      #0A0A0B;
+  --ink-3:      #101011;
+  --ink-4:      #17171A;
+  --paper:      #EDE9E1;
+  --paper-dim:  #A8A49B;
+  --paper-faint:#857F76;
+  --gold:       #3E74FF;
+  --gold-hi:    #7DA2FF;
+  --gold-deep:  #2657D6;
+  --line:       rgba(62,116,255,.24);
+  --line-soft:  rgba(237,233,225,.09);
+  --lede:       #D8D3CA;
+
   --overlay:      rgba(5,5,5,.94);
   --overlay-soft: rgba(5,5,5,.82);
 }
 
-/* ============================================================
-   MODE CLAIR — bascule manuelle (voir le bouton dans l'en-tête).
-   Reprend la palette déjà utilisée par les sections --paper, mais
-   appliquée à toute la page : aucune nouvelle couleur inventée.
-   Par défaut (aucun attribut), la page reste en mode sombre.
-   ============================================================ */
-:root[data-theme="light"]{
-  --ink:        var(--cream);
-  --ink-2:      var(--cream-2);
-  --ink-3:      #E8DFC9;
-  --ink-4:      #DED2B4;
-  --paper:      var(--cream-ink);
-  --paper-dim:  #4B463C;
-  --paper-faint:#665F4E;
-  --gold:       #7C6229;
-  --gold-hi:    #5E4A1C;
-  --gold-deep:  #7A6534;
-  --line:       rgba(22,21,15,.22);
-  --line-soft:  rgba(22,21,15,.13);
-  --lede:       #3A352B;
-
-  --overlay:      rgba(246,241,233,.94);
-  --overlay-soft: rgba(246,241,233,.97);
-}
-
 /* le hero reste une photo de nuit dans les deux thèmes : tant que l'en-tête
    n'est pas "collée" (donc encore posée sur la photo), son texte et celui
-   du hero gardent les couleurs du mode sombre pour rester lisibles ;
+   du hero gardent des couleurs claires-sur-sombre pour rester lisibles ;
    une fois l'en-tête collée (fond opaque), elle repasse au thème choisi */
-:root[data-theme="light"] .hero,
-:root[data-theme="light"] .site-head:not(.is-stuck){
+:root:not([data-theme="dark"]) .hero,
+:root:not([data-theme="dark"]) .site-head:not(.is-stuck){
   --paper:      #EDE9E1;
   --paper-dim:  #A8A49B;
   --paper-faint:#857F76;
-  --gold:       #C9A96E;
-  --gold-hi:    #E9D6AC;
-  --gold-deep:  #9C8250;
+  --gold:       #3E74FF;
+  --gold-hi:    #7DA2FF;
+  --gold-deep:  #2657D6;
   --lede:       #D8D3CA;
-  --line:       rgba(201,169,110,.20);
+  --line:       rgba(62,116,255,.24);
   --line-soft:  rgba(237,233,225,.09);
+}
+/* le menu plein écran est un panneau clair (même en thème clair) : une
+   fois ouvert, l'en-tête ne doit pas garder les couleurs "sur photo
+   sombre" ci-dessus, sous peine de texte clair sur fond clair. Spécificité
+   volontairement égale à la règle ci-dessus (même préfixe) pour être sûr
+   de la emporter malgré l'ordre des règles. */
+:root:not([data-theme="dark"]) body.nav-open .site-head:not(.is-stuck){
+  --paper: unset; --paper-dim: unset; --paper-faint: unset;
+  --gold: unset; --gold-hi: unset; --gold-deep: unset;
+  --lede: unset; --line: unset; --line-soft: unset;
 }
 
 *,*::before,*::after{ box-sizing:border-box; }
@@ -167,7 +179,7 @@ img,svg{ display:block; max-width:100%; }
 a{ color:inherit; text-decoration:none; }
 button{ font:inherit; color:inherit; }
 
-::selection{ background:var(--gold); color:#0A0A0B; }
+::selection{ background:var(--gold); color:#FFFFFF; }
 
 :focus-visible{
   outline:1px solid var(--gold);
@@ -244,10 +256,11 @@ p{ margin:0; text-wrap:pretty; }
   position:relative;
   display:inline-flex; align-items:center; gap:14px;
   padding:var(--pad-y) 30px;
-  font-family:var(--sans); font-size:12px; font-weight:400;
-  letter-spacing:.24em; text-transform:uppercase;
+  font-family:var(--sans); font-size:12px; font-weight:700;
+  letter-spacing:.1em; text-transform:none;
   border:1px solid var(--gold);
-  background:transparent; color:var(--gold-hi);
+  border-radius:999px;
+  background:transparent; color:var(--gold);
   cursor:pointer; overflow:hidden;
   transition:color .55s var(--ease), border-color .55s var(--ease), transform .35s var(--ease);
 }
@@ -258,17 +271,17 @@ p{ margin:0; text-wrap:pretty; }
   transition:transform .6s var(--ease-soft);
 }
 .btn > *{ position:relative; z-index:1; }
-.btn:hover{ color:#0A0A0B; }
+.btn:hover{ color:#FFFFFF; }
 .btn:hover::after{ transform:translateY(0); }
 .btn:active{ transform:translateY(1px); }
 .btn .arrow{ transition:transform .55s var(--ease); }
 .btn:hover .arrow{ transform:translateX(5px); }
 
 .btn--solid{
-  background:var(--gold); color:#0A0A0B; border-color:var(--gold);
+  background:var(--gold); color:#FFFFFF; border-color:var(--gold);
 }
-.btn--solid::after{ background:var(--gold-hi); }
-.btn--solid:hover{ color:#0A0A0B; }
+.btn--solid::after{ background:var(--gold-deep); }
+.btn--solid:hover{ color:#FFFFFF; }
 
 .btn--ghost{ border-color:rgba(237,233,225,.28); color:var(--paper); }
 .btn--ghost::after{ background:var(--paper); }
@@ -361,24 +374,22 @@ p{ margin:0; text-wrap:pretty; }
 .lang-switch a[aria-current="true"]{ color:var(--gold-hi); }
 .lang-switch .sep{ color:var(--line); font-size:10px; }
 
-/* interrupteur clair / sombre : un petit rail, un loset doré qui glisse,
-   le même motif que les puces .gold-dot utilisées ailleurs sur le site */
+/* interrupteur clair / sombre : bouton rond, icône soleil (mode clair actif)
+   ou lune (mode sombre actif) selon le thème courant */
 .theme-toggle{
   flex:none; position:relative;
-  width:40px; height:21px; margin-left:4px; padding:0;
-  border:1px solid var(--line); background:transparent;
+  width:34px; height:34px; margin-left:4px; padding:0;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--line); border-radius:999px; background:transparent;
+  color:var(--paper-dim);
   cursor:pointer;
-  transition:border-color .4s var(--ease);
+  transition:border-color .4s var(--ease), color .4s var(--ease);
 }
-.theme-toggle:hover{ border-color:var(--gold); }
-.theme-toggle-thumb{
-  position:absolute; top:3px; left:3px;
-  width:13px; height:13px;
-  background:var(--gold);
-  transform:translateX(0) rotate(45deg);
-  transition:transform .45s var(--ease-soft), background-color .4s var(--ease);
-}
-[data-theme="light"] .theme-toggle-thumb{ transform:translateX(18px) rotate(45deg); }
+.theme-toggle:hover{ border-color:var(--gold); color:var(--gold); }
+.theme-icon{ width:17px; height:17px; }
+.theme-icon--moon{ display:none; }
+[data-theme="dark"] .theme-icon--sun{ display:none; }
+[data-theme="dark"] .theme-icon--moon{ display:block; }
 
 /* bouton hamburger → croix */
 .burger{
@@ -538,14 +549,20 @@ p{ margin:0; text-wrap:pretty; }
 
 /* ---------- estimation rapide dans le hero (façon barre de recherche) ---------- */
 .hero-quote{
+  /* îlot clair posé sur la photo sombre du hero : couleurs de texte
+     redéfinies localement, indépendamment du thème (comme .sec--paper) */
+  --paper:      #14140F;
+  --paper-dim:  #4B4A45;
+  --paper-faint:#726F65;
+  --line-soft:  rgba(20,20,15,.14);
+  --ink-3:      #FFFFFF;
   display:flex; flex-wrap:wrap; align-items:flex-end; gap:18px 24px;
-  max-width:640px;
+  max-width:680px;
   margin-top:clamp(28px,4vh,40px);
-  padding:20px 22px;
-  border:1px solid var(--line);
-  background:rgba(5,5,5,.28);
-  -webkit-backdrop-filter:blur(6px);
-  backdrop-filter:blur(6px);
+  padding:22px 26px;
+  border-radius:20px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 24px 60px rgba(5,8,20,.28);
   opacity:0; transform:translateY(18px);
   transition:opacity 1s var(--ease-soft) .78s, transform 1s var(--ease-soft) .78s;
 }
@@ -554,7 +571,7 @@ p{ margin:0; text-wrap:pretty; }
 .hero-quote .field label{ color:var(--paper-faint); }
 .hero-quote .btn{ flex:none; }
 @media (max-width:599px){
-  .hero-quote{ flex-direction:column; align-items:stretch; padding:18px; }
+  .hero-quote{ flex-direction:column; align-items:stretch; padding:20px; }
   .hero-quote .btn{ justify-content:center; }
 }
 
@@ -641,7 +658,8 @@ section{ position:relative; }
 .shot{
   position:relative; margin:0;
   border:1px solid var(--line);
-  background:#0A0A0B;
+  border-radius:18px;
+  background:#E4E0D3;
   overflow:hidden;
 }
 .shot img{
@@ -684,11 +702,11 @@ section{ position:relative; }
   --paper:      var(--cream-ink);
   --paper-dim:  #4B463C;
   --paper-faint:#665F4E;
-  --gold:       #7C6229;
-  --gold-hi:    #5E4A1C;
-  --gold-deep:  #7A6534;
-  --line:       rgba(22,21,15,.22);
-  --line-soft:  rgba(22,21,15,.13);
+  --gold:       #1652E0;
+  --gold-hi:    #3E74FF;
+  --gold-deep:  #0D3FB8;
+  --line:       rgba(22,21,15,.16);
+  --line-soft:  rgba(22,21,15,.09);
   --lede:       #3A352B;
   background:var(--cream);
   color:var(--cream-ink);
@@ -698,23 +716,11 @@ section{ position:relative; }
 .sec--paper .grid-3 > article,
 .sec--paper-2 .grid-3 > article{ background:rgba(255,255,255,.46); }
 
-.sec--paper .btn,
-.sec--paper-2 .btn{ border-color:rgba(22,21,15,.34); color:#2A2620; }
-.sec--paper .btn::after,
-.sec--paper-2 .btn::after{ background:var(--cream-ink); }
-.sec--paper .btn:hover,
-.sec--paper-2 .btn:hover{ color:var(--cream); }
-.sec--paper .btn--solid,
-.sec--paper-2 .btn--solid{ background:var(--cream-ink); border-color:var(--cream-ink); color:var(--cream); }
-.sec--paper .btn--solid::after,
-.sec--paper-2 .btn--solid::after{ background:#332F24; }
-.sec--paper .btn--solid:hover,
-.sec--paper-2 .btn--solid:hover{ color:var(--cream); }
 
 .sec--paper .quiet,
-.sec--paper-2 .quiet{ background:linear-gradient(180deg, rgba(124,98,41,.07), transparent 70%); }
+.sec--paper-2 .quiet{ background:linear-gradient(180deg, rgba(22,86,224,.07), transparent 70%); }
 .sec--paper .appellations li:hover,
-.sec--paper-2 .appellations li:hover{ background:rgba(124,98,41,.08); }
+.sec--paper-2 .appellations li:hover{ background:rgba(22,86,224,.08); }
 .sec--paper .shot,
 .sec--paper-2 .shot{ border-color:rgba(22,21,15,.16); }
 
@@ -768,13 +774,13 @@ section{ position:relative; }
   border-block:1px solid var(--line-soft);
 }
 .tagline p{
-  font-family:var(--display);
-  font-size:clamp(28px,4.6vw,60px);
-  line-height:1.2; letter-spacing:-.018em;
+  font-family:var(--sans); font-weight:700;
+  font-size:clamp(30px,5.4vw,68px);
+  line-height:1.08; letter-spacing:-.02em;
   max-width:19ch;
 }
 .tagline .w{
-  color:rgba(237,233,225,.16);
+  color:rgba(20,20,15,.16);
   transition:color 1s var(--ease-soft);
 }
 .tagline .w.on{ color:var(--paper); }
@@ -810,7 +816,7 @@ section{ position:relative; }
 .quiet{
   border:1px solid var(--line);
   padding:clamp(30px,4.4vw,64px);
-  background:linear-gradient(180deg, rgba(201,169,110,.045), transparent 70%);
+  background:linear-gradient(180deg, rgba(22,86,224,.045), transparent 70%);
   display:grid; gap:clamp(26px,4vw,64px);
 }
 .quiet .mark{
@@ -842,14 +848,14 @@ section{ position:relative; }
   color:var(--paper-dim);
   transition:color .5s var(--ease), border-color .5s var(--ease), background-color .5s var(--ease);
 }
-.appellations li:hover{ color:var(--gold-hi); border-color:var(--gold); background:rgba(201,169,110,.06); }
+.appellations li:hover{ color:var(--gold-hi); border-color:var(--gold); background:rgba(22,86,224,.06); }
 
 /* ---------- circuits & carte ---------- */
 
 .map-figure{
   margin:0; padding:clamp(20px,2.6vw,32px);
   border:1px solid var(--line);
-  background:rgba(201,169,110,.035);
+  background:rgba(22,86,224,.035);
 }
 .map-svg{ width:100%; height:auto; display:block; overflow:visible; }
 .map-svg text{ font-family:var(--sans); letter-spacing:.02em; }
@@ -960,7 +966,7 @@ form{ display:grid; gap:22px; }
 .field textarea{ resize:vertical; min-height:112px; line-height:1.7; }
 .field select{ appearance:none; cursor:pointer; }
 .field select option{ background:var(--ink-3); color:var(--paper); }
-.field input:hover,.field select:hover,.field textarea:hover{ border-bottom-color:rgba(201,169,110,.4); }
+.field input:hover,.field select:hover,.field textarea:hover{ border-bottom-color:rgba(22,86,224,.4); }
 .field input:focus,.field select:focus,.field textarea:focus{
   outline:none; border-bottom-color:var(--gold);
 }
@@ -1001,7 +1007,7 @@ form{ display:grid; gap:22px; }
 .field input[type="checkbox"],.field input[type="radio"]{ width:auto; accent-color:var(--gold); cursor:pointer; }
 .quote-box{
   margin-top:4px; padding:22px 26px; border:1px solid var(--gold-deep);
-  background:linear-gradient(180deg, rgba(201,169,110,.08), transparent 70%);
+  background:linear-gradient(180deg, rgba(22,86,224,.08), transparent 70%);
 }
 .quote-box__total{ font-family:var(--display); font-size:22px; color:var(--gold-hi); }
 .quote-box__toggle{
@@ -1018,7 +1024,7 @@ form{ display:grid; gap:22px; }
 .sent{
   border:1px solid var(--gold);
   padding:clamp(28px,4vw,44px);
-  background:rgba(201,169,110,.05);
+  background:rgba(22,86,224,.05);
 }
 .sent h3{ font-size:26px; margin-bottom:14px; }
 .sent .mark{ font-family:var(--display); color:var(--gold); font-size:34px; line-height:1; margin-bottom:18px; }
@@ -1062,7 +1068,7 @@ form{ display:grid; gap:22px; }
   transition:background-color .4s var(--ease);
 }
 .mobile-cta__link svg{ width:15px; height:15px; flex:none; }
-.mobile-cta__link--quote{ background:var(--gold); color:#0A0A0B; }
+.mobile-cta__link--quote{ background:var(--gold); color:#FFFFFF; }
 @media (max-width:1179px){
   body{ padding-bottom:60px; }
 }
@@ -1195,11 +1201,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <a href="../zh/index.html" lang="zh" hreflang="zh">中文</a>
     </nav>
 
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to light mode">
-      <span class="theme-toggle-thumb" aria-hidden="true"></span>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode">
+      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.2"/>
+        <path d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/>
+      </svg>
+      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"/>
+      </svg>
     </button>
 
-    <a class="btn head-cta" href="index.html#contact"><span>Book</span><span class="arrow" aria-hidden="true">&rarr;</span></a>
+    <a class="btn btn--solid head-cta" href="index.html#contact"><span>Book</span><span class="arrow" aria-hidden="true">&rarr;</span></a>
 
     <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu">
       <span></span><span></span>

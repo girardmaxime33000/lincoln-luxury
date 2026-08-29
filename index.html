@@ -146,6 +146,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   --line:       rgba(62,116,255,.24);
   --line-soft:  rgba(237,233,225,.09);
 }
+/* le menu plein écran est un panneau clair (même en thème clair) : une
+   fois ouvert, l'en-tête ne doit pas garder les couleurs "sur photo
+   sombre" ci-dessus, sous peine de texte clair sur fond clair. Spécificité
+   volontairement égale à la règle ci-dessus (même préfixe) pour être sûr
+   de la emporter malgré l'ordre des règles. */
+:root:not([data-theme="dark"]) body.nav-open .site-head:not(.is-stuck){
+  --paper: unset; --paper-dim: unset; --paper-faint: unset;
+  --gold: unset; --gold-hi: unset; --gold-deep: unset;
+  --lede: unset; --line: unset; --line-soft: unset;
+}
 
 *,*::before,*::after{ box-sizing:border-box; }
 
