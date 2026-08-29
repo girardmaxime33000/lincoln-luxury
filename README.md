@@ -12,11 +12,13 @@ Classe S.
 ├── en/index.html        # Version anglaise (mêmes sections, même structure)
 ├── es/index.html        # Version espagnole
 ├── zh/index.html        # Version chinoise (simplifié)
-└── assets/
-    ├── css/
-    │   └── fonts.css    # Déclarations @font-face pour les polices auto-hébergées
-    ├── fonts/            # Polices auto-hébergées (Cormorant Garamond, Playfair Display, Jost)
-    └── img/               # Photos utilisées sur la page, partagées par les 4 langues
+├── assets/
+│   ├── css/
+│   │   └── fonts.css    # Déclarations @font-face pour les polices auto-hébergées
+│   ├── fonts/            # Polices auto-hébergées (Cormorant Garamond, Playfair Display, Jost)
+│   └── img/               # Photos utilisées sur la page, partagées par les 4 langues
+└── google-apps-script/
+    └── Code.gs           # Script Apps Script : reçoit le formulaire, écrit dans Google Sheets
 ```
 
 Il n'y a pas de dépendance, de build ni de framework : chaque `index.html`
@@ -67,8 +69,14 @@ HTML et, pour certains, visuellement sur la page) et doit être remplacé
 avant publication :
 
 - **Coordonnées** : numéro de téléphone (`07 XX XX XX XX`) et adresse e-mail
-  dans l'en-tête mobile, la section Contact, le pied de page et les deux
-  blocs JSON-LD, sur les 4 langues.
+  dans l'en-tête mobile, le pied de page et les deux blocs JSON-LD, sur les
+  4 langues. (Le bloc récapitulatif Téléphone/Courriel/Zone qui figurait à
+  côté du formulaire de contact a été retiré : ces informations ne sont
+  plus affichées tant qu'elles ne sont pas définitives.)
+- **Formulaire de contact** : le formulaire envoie ses soumissions vers
+  Google Sheets via Google Apps Script, mais l'URL de déploiement doit être
+  renseignée avant mise en ligne — voir la section « Formulaire → Google
+  Sheets » ci-dessous.
 - **Avis clients** : les trois témoignages sont des avis de démonstration
   (section « Ils nous font confiance ») — à remplacer par de vrais avis,
   obtenus avec l'accord des personnes concernées, avant d'ajouter un
@@ -87,6 +95,62 @@ avant publication :
 - **Photos** : les photographies actuelles viennent de Wikimedia Commons
   (voir Crédits photo ci-dessous) ; à remplacer de préférence par des
   photos du vignoble et du véhicule réalisées pour Lincoln Luxury.
+
+## Formulaire → Google Sheets
+
+Le formulaire de contact (section 09, les 4 langues) envoie ses soumissions
+à une feuille Google Sheets via un script Google Apps Script fourni dans
+`google-apps-script/Code.gs`. Aucun serveur n'est nécessaire : le
+JavaScript du formulaire fait un `fetch()` en `POST` directement vers le
+déploiement Apps Script.
+
+### Mise en place (à faire une seule fois)
+
+1. Crée une nouvelle feuille de calcul sur [Google Sheets](https://sheets.google.com)
+   (par exemple « Lincoln Luxury — Demandes »).
+2. Dans cette feuille : menu **Extensions → Apps Script**.
+3. Supprime le contenu par défaut de `Code.gs` et colle-y le contenu du
+   fichier `google-apps-script/Code.gs` de ce dépôt. Enregistre (icône
+   disquette ou `Ctrl/Cmd+S`).
+4. **Déployer → Nouveau déploiement** :
+   - Type : **Application Web**
+   - Exécuter en tant que : **Moi** (ton compte Google)
+   - Qui a accès : **Tout le monde**
+   - Clique sur **Déployer**, autorise les permissions demandées (le script
+     accède uniquement à cette feuille), puis copie l'**URL de
+     l'application Web** générée (elle se termine par `/exec`).
+5. Colle cette URL dans la constante `GOOGLE_SHEETS_ENDPOINT` du script
+   inline, **dans les 4 fichiers HTML** (`index.html`, `en/index.html`,
+   `es/index.html`, `zh/index.html`) — cherche
+   `URL_DU_DEPLOIEMENT_APPS_SCRIPT_A_COMPLETER` et remplace par l'URL
+   copiée à l'étape précédente.
+
+Tant que cette URL n'est pas renseignée, le formulaire refuse l'envoi et
+affiche un message expliquant qu'il n'est pas encore connecté (visible en
+local, donc facile à repérer avant mise en ligne).
+
+### Fonctionnement
+
+- Chaque soumission valide ajoute une ligne dans la feuille active du
+  classeur (date, nom, courriel, téléphone, prestation, dates envisagées,
+  nombre de passagers, message, langue de la page, URL de la page). Le
+  script crée automatiquement la ligne d'en-têtes au premier envoi.
+- L'appel `fetch()` utilise le mode `no-cors` (Apps Script ne gère pas les
+  requêtes CORS en préflight) : la réponse ne peut donc pas être lue côté
+  navigateur — la confirmation à l'écran signifie seulement que la requête
+  est partie sans erreur réseau, pas qu'Apps Script l'a traitée avec
+  succès. Vérifie de temps en temps que la feuille se remplit bien.
+- Si tu redéploies le script après une modification (`Code.gs`), choisis
+  **Gérer les déploiements → modifier → Nouvelle version** pour que l'URL
+  existante reste valide (sinon il faut mettre à jour les 4 fichiers HTML
+  avec la nouvelle URL).
+
+### Redirection vers une adresse e-mail (optionnel)
+
+Le script peut aussi envoyer un e-mail de notification à chaque nouvelle
+demande, avec `MailApp.sendEmail(...)`, en l'ajoutant à la fonction
+`doPost` — non inclus par défaut pour rester simple ; demande si tu veux
+cette variante.
 
 ## Développement local
 

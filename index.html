@@ -904,19 +904,6 @@ section{ position:relative; }
 
 .contact-grid{ display:grid; grid-template-columns:1fr; gap:clamp(40px,5vw,80px); }
 
-.coord{ margin:0; }
-.coord div + div{ margin-top:28px; }
-.coord dt{ font-size:10px; letter-spacing:.3em; text-transform:uppercase; color:var(--gold-deep); margin-bottom:10px; }
-.coord dd{
-  margin:0; font-family:var(--display); font-size:clamp(20px,2.6vw,26px);
-  color:var(--paper); letter-spacing:.01em;
-}
-.coord dd small{
-  display:block; margin-top:8px;
-  font-family:var(--sans); font-size:11px; letter-spacing:.16em;
-  text-transform:uppercase; color:var(--paper-faint);
-}
-
 form{ display:grid; gap:22px; }
 .field{ display:grid; gap:9px; }
 .field label{
@@ -1025,7 +1012,7 @@ form{ display:grid; gap:22px; }
   .grid-2.top{ align-items:start; }
   .grid-3{ grid-template-columns:repeat(3,1fr); }
   .sec-head{ grid-template-columns:1.2fr .8fr; }
-  .contact-grid{ grid-template-columns:.8fr 1.2fr; align-items:start; }
+  .contact-grid{ max-width:640px; }
   .quiet{ grid-template-columns:1.05fr .95fr; align-items:start; }
   .foot-top{ grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr); align-items:start; }
   .scrollcue{ display:flex; }
@@ -1829,25 +1816,6 @@ form{ display:grid; gap:22px; }
     </div>
 
     <div class="contact-grid">
-      <div class="rv">
-        <dl class="coord">
-          <div>
-            <dt>Téléphone</dt>
-            <!-- à remplacer par les vraies coordonnées -->
-            <dd>07 XX XX XX XX<small>Numéro à compléter</small></dd>
-          </div>
-          <div>
-            <dt>Courriel</dt>
-            <!-- à remplacer par les vraies coordonnées -->
-            <dd>contact@lincoln-luxury.fr<small>Adresse à compléter</small></dd>
-          </div>
-          <div>
-            <dt>Zone</dt>
-            <dd>Bordeaux, Gironde et vignoble<small>Déplacements sur demande</small></dd>
-          </div>
-        </dl>
-      </div>
-
       <div class="rv" data-d="1">
         <form id="form" novalidate>
           <div class="row-2">
@@ -1865,8 +1833,8 @@ form{ display:grid; gap:22px; }
 
           <div class="row-2">
             <div class="field">
-              <label for="f-phone">Téléphone</label>
-              <input id="f-phone" name="phone" type="tel" autocomplete="tel" placeholder="Facultatif" aria-describedby="e-phone">
+              <label for="f-phone">Téléphone <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" placeholder="Votre numéro" required aria-describedby="e-phone">
               <span class="err" id="e-phone" role="status"></span>
             </div>
             <div class="field">
@@ -2178,7 +2146,10 @@ form{ display:grid; gap:22px; }
     watched.forEach(function (section) { spyObserver.observe(section); });
   }
 
-  /* ---------- formulaire : validation en ligne, sans backend ---------- */
+  /* ---------- formulaire : validation en ligne + envoi vers Google Sheets ---------- */
+  /* URL du déploiement Google Apps Script (voir README, section « Formulaire
+     -> Google Sheets ») ; tant qu'elle n'est pas renseignée, l'envoi est bloqué. */
+  var GOOGLE_SHEETS_ENDPOINT = "URL_DU_DEPLOIEMENT_APPS_SCRIPT_A_COMPLETER";
   var form = document.getElementById("form");
   var sent = document.getElementById("sent");
   var again = document.getElementById("again");
@@ -2199,7 +2170,7 @@ form{ display:grid; gap:22px; }
       return "";
     },
     "f-phone": function (v) {
-      if (!v.trim()) { return ""; }
+      if (!v.trim()) { return "Merci d’indiquer votre numéro de téléphone."; }
       if (v.replace(/[^0-9]/g, "").length < 6) { return "Ce numéro semble incomplet."; }
       return "";
     },
@@ -2269,18 +2240,47 @@ form{ display:grid; gap:22px; }
       return;
     }
 
+    if (!/^https:\/\/script\.google\.com\//.test(GOOGLE_SHEETS_ENDPOINT)) {
+      formError.textContent = "Le formulaire n’est pas encore connecté. Merci de nous contacter directement.";
+      return;
+    }
+
     submit.dataset.loading = "true";
     submitLabel.textContent = "Envoi en cours";
 
-    /* aucun backend : la confirmation est locale.
-       Brancher ici l’envoi réel (courriel ou service de formulaire). */
-    window.setTimeout(function () {
+    var payload = {
+      name: document.getElementById("f-name").value.trim(),
+      email: document.getElementById("f-email").value.trim(),
+      phone: document.getElementById("f-phone").value.trim(),
+      service: document.getElementById("f-service").value,
+      dates: document.getElementById("f-dates").value.trim(),
+      pax: document.getElementById("f-pax").value.trim(),
+      message: document.getElementById("f-msg").value.trim(),
+      lang: document.documentElement.lang || "fr",
+      page: window.location.href,
+      submittedAt: new Date().toISOString()
+    };
+
+    /* Envoi vers Google Sheets via un déploiement Google Apps Script.
+       mode "no-cors" + Content-Type text/plain : évite le préflight CORS
+       qu'Apps Script ne gère pas ; la réponse est donc opaque (on ne peut
+       pas lire son statut), seul un échec réseau fait tomber dans .catch(). */
+    fetch(GOOGLE_SHEETS_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    }).then(function () {
       submit.dataset.loading = "false";
       submitLabel.textContent = "Envoyer la demande";
       form.hidden = true;
       sent.hidden = false;
       sent.focus();
-    }, reduced ? 60 : 700);
+    }).catch(function () {
+      submit.dataset.loading = "false";
+      submitLabel.textContent = "Envoyer la demande";
+      formError.textContent = "L’envoi a échoué. Réessayez ou contactez-nous directement.";
+    });
   });
 
   again.addEventListener("click", function () {
