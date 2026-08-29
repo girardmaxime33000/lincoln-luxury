@@ -161,10 +161,12 @@ ligne).
 ### Notification par e-mail
 
 À chaque demande enregistrée dans la feuille, le script envoie aussi un
-e-mail récapitulatif (nom, courriel, téléphone, prestation, dates,
-passagers, message, langue, page) à l'adresse définie dans `NOTIFY_EMAIL`
-(en haut de `Code.gs`). L'e-mail du client est placé en « répondre à », donc
-répondre directement à la notification répond au client.
+e-mail récapitulatif mis en forme (HTML, avec repli en texte brut) aux
+adresses définies dans `NOTIFY_EMAIL` (en haut de `Code.gs`) : nom,
+courriel, téléphone, prestation, date de début, date de fin, nombre de
+jours (calculé automatiquement), passagers, message, langue, page.
+L'e-mail du client est placé en « répondre à », donc répondre directement
+à la notification répond au client.
 
 - L'e-mail est envoyé depuis le compte Google propriétaire du script
   (celui utilisé lors du déploiement), avec la limite quotidienne standard

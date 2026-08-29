@@ -83,38 +83,122 @@ function doPost(e) {
 /**
  * Envoie un e-mail récapitulant la demande à NOTIFY_EMAIL, avec le
  * courriel du client en "répondre à" pour pouvoir lui répondre directement.
+ * Envoyé en HTML (mise en forme Lincoln Luxury) avec un repli en texte
+ * brut pour les clients de messagerie qui n'affichent pas le HTML.
  */
 function sendNotificationEmail(data) {
-  var subject = "Nouvelle demande — " + (data.name || "site Lincoln Luxury");
+  var subject = "Nouvelle demande de réservation — " + (data.name || "site Lincoln Luxury");
 
-  var duree = "";
-  if (data.dateStart && data.dateEnd && data.nbJours) {
-    duree = " (" + data.nbJours + " jour" + (data.nbJours > 1 ? "s" : "") + ")";
-  }
+  var dateStartFr = formatDateFr_(data.dateStart);
+  var dateEndFr = formatDateFr_(data.dateEnd);
+  var nbJoursTxt = data.nbJours ? (data.nbJours + " jour" + (data.nbJours > 1 ? "s" : "")) : "—";
+  var receivedAt = data.submittedAt || new Date().toISOString();
 
   var body = [
-    "Nouvelle demande reçue depuis le site Lincoln Luxury.",
+    "LINCOLN LUXURY — Nouvelle demande de réservation",
     "",
+    "INFORMATIONS CLIENT",
     "Nom : " + (data.name || "—"),
     "Courriel : " + (data.email || "—"),
     "Téléphone : " + (data.phone || "—"),
+    "",
+    "DÉTAILS DE LA PRESTATION",
     "Prestation : " + (data.service || "—"),
-    "Dates : " + (data.dateStart || "—") + " → " + (data.dateEnd || "—") + duree,
+    "Date de début : " + (dateStartFr || "—"),
+    "Date de fin : " + (dateEndFr || "—"),
+    "Nombre de jours : " + nbJoursTxt,
     "Nombre de passagers : " + (data.pax || "—"),
     "",
-    "Message :",
+    "MESSAGE DU CLIENT",
     data.message || "—",
     "",
     "— — —",
     "Langue de la page : " + (data.lang || "—"),
     "Page : " + (data.page || "—"),
-    "Reçu le : " + (data.submittedAt || new Date().toISOString())
+    "Reçu le : " + receivedAt,
+    "",
+    "Répondez directement à cet e-mail pour contacter le client."
   ].join("\n");
 
-  var mail = { to: NOTIFY_EMAIL, subject: subject, body: body };
+  var row = function (label, value, isLink) {
+    var v = escapeHtml_(value || "—");
+    if (isLink && value) { v = "<a href=\"" + isLink + escapeHtml_(value) + "\" style=\"color:#1c1c1c;text-decoration:none;\">" + v + "</a>"; }
+    return "<tr>" +
+      "<td style=\"padding:7px 0;font-size:13px;color:#8a8a86;width:170px;vertical-align:top;\">" + label + "</td>" +
+      "<td style=\"padding:7px 0;font-size:14px;color:#1c1c1c;vertical-align:top;\">" + v + "</td>" +
+      "</tr>";
+  };
+
+  var htmlBody =
+    "<div style=\"background:#f5f4f1;padding:28px 16px;font-family:Arial,Helvetica,sans-serif;\">" +
+      "<table role=\"presentation\" width=\"100%\" style=\"max-width:560px;margin:0 auto;background:#ffffff;border-collapse:collapse;\">" +
+        "<tr><td style=\"background:#1c1c1c;padding:22px 28px;\">" +
+          "<div style=\"color:#c9a227;font-size:18px;font-weight:bold;letter-spacing:.06em;\">LINCOLN LUXURY</div>" +
+          "<div style=\"color:#ffffff;font-size:13px;margin-top:2px;\">Nouvelle demande de réservation</div>" +
+        "</td></tr>" +
+        "<tr><td style=\"padding:26px 28px 6px;\">" +
+          "<table role=\"presentation\" width=\"100%\" style=\"border-collapse:collapse;margin-bottom:22px;\">" +
+            row("Nom", data.name) +
+            row("Courriel", data.email, "mailto:") +
+            row("Téléphone", data.phone, "tel:") +
+          "</table>" +
+        "</td></tr>" +
+        "<tr><td style=\"padding:0 28px 22px;\">" +
+          "<table role=\"presentation\" width=\"100%\" style=\"border-collapse:collapse;border:1px solid #ece9e2;\">" +
+            "<tr><td style=\"padding:9px 16px;background:#1c1c1c;color:#c9a227;font-size:11px;letter-spacing:.1em;text-transform:uppercase;\">Détails de la prestation</td></tr>" +
+            "<tr><td style=\"padding:4px 16px 12px;background:#faf9f6;\">" +
+              "<table role=\"presentation\" width=\"100%\" style=\"border-collapse:collapse;\">" +
+                row("Prestation", data.service) +
+                row("Date de début", dateStartFr) +
+                row("Date de fin", dateEndFr) +
+                row("Nombre de jours", nbJoursTxt) +
+                row("Passagers", data.pax) +
+              "</table>" +
+            "</td></tr>" +
+          "</table>" +
+        "</td></tr>" +
+        "<tr><td style=\"padding:0 28px 24px;\">" +
+          "<table role=\"presentation\" width=\"100%\" style=\"border-collapse:collapse;border:1px solid #ece9e2;\">" +
+            "<tr><td style=\"padding:9px 16px;background:#1c1c1c;color:#c9a227;font-size:11px;letter-spacing:.1em;text-transform:uppercase;\">Message du client</td></tr>" +
+            "<tr><td style=\"padding:14px 16px;background:#faf9f6;font-size:14px;color:#1c1c1c;white-space:pre-wrap;\">" + escapeHtml_(data.message || "—") + "</td></tr>" +
+          "</table>" +
+        "</td></tr>" +
+        "<tr><td style=\"padding:0 28px 24px;\">" +
+          "<p style=\"margin:0 0 3px;font-size:12px;color:#9a9a95;\">Langue de la page : " + escapeHtml_(data.lang || "—") + " · Page : " + escapeHtml_(data.page || "—") + "</p>" +
+          "<p style=\"margin:0;font-size:12px;color:#9a9a95;\">Reçu le " + escapeHtml_(receivedAt) + "</p>" +
+        "</td></tr>" +
+        "<tr><td style=\"padding:16px 28px;background:#faf9f6;border-top:1px solid #ece9e2;\">" +
+          "<p style=\"margin:0;font-size:12px;color:#6b6b66;\">Répondez directement à cet e-mail pour contacter le client — son adresse est déjà en « répondre à ».</p>" +
+        "</td></tr>" +
+      "</table>" +
+    "</div>";
+
+  var mail = { to: NOTIFY_EMAIL, subject: subject, body: body, htmlBody: htmlBody };
   if (data.email) { mail.replyTo = data.email; }
 
   MailApp.sendEmail(mail);
+}
+
+/** Convertit une date ISO "YYYY-MM-DD" en "JJ/MM/AAAA" ; vide si absente. */
+function formatDateFr_(iso) {
+  if (!iso) { return ""; }
+  var parts = String(iso).split("-");
+  if (parts.length !== 3) { return String(iso); }
+  return parts[2] + "/" + parts[1] + "/" + parts[0];
+}
+
+/**
+ * Échappe les caractères HTML spéciaux d'un texte fourni par le client
+ * (nom, message, etc.) avant de l'insérer dans l'e-mail HTML, pour éviter
+ * qu'une demande malveillante n'injecte du balisage dans la notification.
+ */
+function escapeHtml_(v) {
+  return String(v == null ? "" : v)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 /**
