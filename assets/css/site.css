@@ -452,12 +452,13 @@ p{ margin:0; text-wrap:pretty; }
 
 .scene{ position:absolute; inset:0; z-index:-2; background:#030303; overflow:hidden; }
 
-/* photographie de Bordeaux la nuit, assombrie pour que le texte reste lisible */
+/* photographie de jour (château et vignoble), légèrement assombrie pour que
+   le texte clair reste lisible sans écraser la photo */
 .scene-photo{
   position:absolute; inset:0;
   width:100%; height:100%;
   object-fit:cover; object-position:50% 44%;
-  filter:brightness(.44) saturate(.72) contrast(1.06);
+  filter:brightness(.62) saturate(.88) contrast(1.02);
   transform:scale(1.05);
   animation:heroDrift 34s var(--ease) infinite alternate;
 }
@@ -469,8 +470,9 @@ p{ margin:0; text-wrap:pretty; }
 .scene .vignette{
   position:absolute; inset:0;
   background:
-    radial-gradient(118% 88% at 50% 42%, transparent 34%, rgba(0,0,0,.74) 100%),
-    linear-gradient(180deg, rgba(5,5,5,.80) 0%, rgba(5,5,5,.30) 26%, rgba(5,5,5,.42) 52%, rgba(5,5,5,.94) 100%);
+    radial-gradient(118% 88% at 50% 42%, transparent 34%, rgba(0,0,0,.58) 100%),
+    linear-gradient(180deg, rgba(5,5,5,.64) 0%, rgba(5,5,5,.30) 26%, rgba(5,5,5,.36) 52%, rgba(5,5,5,.72) 100%),
+    linear-gradient(90deg, rgba(5,5,5,.46) 0%, rgba(5,5,5,.12) 42%, transparent 62%);
 }
 .grain{
   position:absolute; inset:-120%;
