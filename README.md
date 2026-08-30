@@ -1,12 +1,13 @@
 # Lincoln Luxury
 
-Site vitrine statique (une seule page, en quatre langues) pour **Lincoln
-Luxury** — wine tours et transport privé de luxe à Bordeaux, en Mercedes
-Classe S.
+Site vitrine statique (page d'accueil + pages circuit dédiées, en quatre
+langues) pour **Lincoln Luxury** — wine tours et transport privé de luxe à
+Bordeaux, en Mercedes Classe S.
 
 ## Sommaire
 
 - [Structure du projet](#structure-du-projet)
+  - [Pages circuit (SEO)](#pages-circuit-seo)
 - [Fonctionnalités](#fonctionnalités)
   - [Contenu des pages](#contenu-des-pages)
   - [Simulateur de devis & repères façon réservation/VTC](#simulateur-de-devis--repères-façon-réservationvtc)
@@ -29,31 +30,58 @@ Classe S.
 
 ```
 .
-├── index.html          # Page d'accueil, en français (langue par défaut)
-├── en/index.html        # Version anglaise (mêmes sections, même structure)
-├── es/index.html        # Version espagnole
-├── zh/index.html        # Version chinoise (simplifié)
+├── index.html                    # Accueil, en français (langue par défaut)
+├── en/index.html                  # Version anglaise (mêmes sections, même structure)
+├── es/index.html                  # Version espagnole
+├── zh/index.html                  # Version chinoise (simplifié)
+├── medoc/index.html               # Page circuit « Médoc », en français
+├── saint-emilion/index.html       # Page circuit « Saint-Émilion & Pomerol »
+├── sauternes/index.html           # Page circuit « Sauternes »
+├── pessac-leognan/index.html      # Page circuit « Pessac-Léognan »
+├── en/medoc/  en/saint-emilion/  en/sauternes/  en/pessac-leognan/   # idem, EN
+├── es/medoc/  es/saint-emilion/  es/sauternes/  es/pessac-leognan/   # idem, ES
+├── zh/medoc/  zh/saint-emilion/  zh/sauternes/  zh/pessac-leognan/   # idem, ZH
 ├── assets/
 │   ├── css/
-│   │   └── fonts.css    # Déclarations @font-face pour les polices auto-hébergées
+│   │   ├── fonts.css    # Déclarations @font-face pour les polices auto-hébergées
+│   │   └── site.css     # Feuille de style unique, chargée par les 20 pages
 │   ├── fonts/            # Polices auto-hébergées (Cormorant Garamond, Playfair Display, Jost)
-│   └── img/               # Photos utilisées sur la page, partagées par les 4 langues
+│   └── img/               # Photos utilisées sur le site, partagées par toutes les pages/langues
 ├── google-apps-script/
 │   └── Code.gs           # Script Apps Script : reçoit le formulaire, écrit dans Google Sheets
 ├── .github/workflows/    # Déploiement automatique sur GitHub Pages à chaque push sur main
+├── sitemap.xml            # Les 20 URLs (4 accueils + 16 pages circuit), avec alternates hreflang
+├── robots.txt             # Pointe vers sitemap.xml
+├── CREDITS.md             # Sources et licences des photographies utilisées
 └── CNAME                 # Domaine personnalisé GitHub Pages (www.lincoln-luxury.fr)
 ```
 
-Il n'y a pas de dépendance, de build ni de framework : chaque `index.html`
-embarque son propre CSS (identique dans les 4 langues) et un peu de
-JavaScript inline (traduit dans chaque langue : validation de formulaire,
-messages d'erreur, libellés d'accessibilité). Les quatre pages partagent les
-mêmes ressources dans `assets/` via des chemins relatifs. Les seules
-ressources externes sont les polices, qui sont auto-hébergées dans
-`assets/fonts/` (pas d'appel à Google Fonts au runtime).
+Il n'y a pas de dépendance, de build ni de framework. Le CSS est partagé par
+les 20 pages via `assets/css/site.css` (identique quelle que soit la langue
+ou la page) : un changement de design se fait à un seul endroit. Chaque page
+embarque en revanche son propre JavaScript inline, traduit dans sa langue
+(validation de formulaire, messages d'erreur, libellés d'accessibilité) —
+chaque page circuit inclut son propre formulaire de devis complet, identique
+à celui de l'accueil, avec la prestation « Wine tour » pré-sélectionnée.
+Toutes les pages partagent les mêmes ressources dans `assets/` via des
+chemins relatifs. Les seules ressources externes sont les polices, qui sont
+auto-hébergées dans `assets/fonts/` (pas d'appel à Google Fonts au runtime).
 
-Le sélecteur de langue est dans l'en-tête (FR / EN / ES / 中文) ; les balises
-`hreflang` sont posées sur les 4 pages pour le référencement multilingue.
+Le sélecteur de langue dans l'en-tête est un menu déroulant (bouton + panneau
+listant Français/English/Español/中文) ; les balises `hreflang` sont posées
+sur chaque page (accueils et pages circuit) pour le référencement
+multilingue, et reprises dans `sitemap.xml`.
+
+### Pages circuit (SEO)
+
+En complément de la section « Circuits » de l'accueil (aperçu des 3
+itinéraires), chaque appellation a sa propre page dédiée (Médoc,
+Saint-Émilion, Sauternes, Pessac-Léognan), en 4 langues : accroche et
+argumentaire propres à l'appellation, déroulé indicatif, FAQ spécifique avec
+balisage `FAQPage` (schema.org) pour les extraits enrichis Google, liens
+croisés vers les autres circuits, et formulaire de devis complet en bas de
+page. Elles sont maillées depuis l'accueil (liens « En savoir plus » dans la
+section Circuits) et listées dans `sitemap.xml`.
 
 ## Fonctionnalités
 
@@ -438,7 +466,8 @@ active, l'apex `lincoln-luxury.fr` redirige automatiquement vers
 ## Crédits photo
 
 Les photographies utilisées (Bordeaux, vignobles du Médoc/Sauternais/
-Saint-Émilion, Mercedes Classe S) proviennent de Wikimedia Commons et sont
-créditées en commentaire au-dessus de chaque balise `<img>` dans
-`index.html` (auteur et licence : domaine public, CC0 ou CC BY-SA selon les
-photos).
+Saint-Émilion/Pessac-Léognan, Mercedes Classe S) sont créditées en commentaire
+au-dessus de chaque balise `<img>`, et dans le pied de page de chaque page
+(section « Crédits photo »). Sources, auteurs et licences complets (domaine
+public, CC0, CC BY-SA ou autorisation du client selon les photos) : voir
+[`CREDITS.md`](CREDITS.md).
