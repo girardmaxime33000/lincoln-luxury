@@ -8,7 +8,7 @@
 :root{
   /* fond clair, dominante crème — l'en-tête, le pied de page et la photo
      du hero restent sombres (voir plus bas), tout le reste de la page
-     est clair par défaut */
+     est clair. Site clair uniquement, pas de mode sombre. */
   --ink:        #F6F3EA;
   --ink-2:      #C9DBF5;
   --ink-3:      #FFFFFF;
@@ -42,36 +42,12 @@
   --overlay-soft: rgba(246,243,234,.86);
 }
 
-/* ============================================================
-   MODE SOMBRE — bascule manuelle (voir le bouton dans l'en-tête).
-   Alternative "nuit" au thème clair par défaut : mêmes proportions,
-   palette inversée. Par défaut (aucun attribut), la page reste claire.
-   ============================================================ */
-:root[data-theme="dark"]{
-  --ink:        #050505;
-  --ink-2:      #0A0A0B;
-  --ink-3:      #101011;
-  --ink-4:      #17171A;
-  --paper:      #EDE9E1;
-  --paper-dim:  #A8A49B;
-  --paper-faint:#857F76;
-  --gold:       #3E74FF;
-  --gold-hi:    #7DA2FF;
-  --gold-deep:  #2657D6;
-  --line:       rgba(62,116,255,.24);
-  --line-soft:  rgba(237,233,225,.09);
-  --lede:       #D8D3CA;
-
-  --overlay:      rgba(5,5,5,.94);
-  --overlay-soft: rgba(5,5,5,.82);
-}
-
-/* le hero reste une photo de nuit dans les deux thèmes : tant que l'en-tête
-   n'est pas "collée" (donc encore posée sur la photo), son texte et celui
-   du hero gardent des couleurs claires-sur-sombre pour rester lisibles ;
-   une fois l'en-tête collée (fond opaque), elle repasse au thème choisi */
-:root:not([data-theme="dark"]) .hero,
-:root:not([data-theme="dark"]) .site-head:not(.is-stuck){
+/* le hero est une photo de nuit : tant que l'en-tête n'est pas "collée"
+   (donc encore posée sur la photo), son texte et celui du hero gardent des
+   couleurs claires-sur-sombre pour rester lisibles ; une fois l'en-tête
+   collée (fond opaque clair), elle repasse à la palette claire du site */
+.hero,
+.site-head:not(.is-stuck){
   --paper:      #EDE9E1;
   --paper-dim:  #A8A49B;
   --paper-faint:#857F76;
@@ -82,12 +58,11 @@
   --line:       rgba(62,116,255,.24);
   --line-soft:  rgba(237,233,225,.09);
 }
-/* le menu plein écran est un panneau clair (même en thème clair) : une
-   fois ouvert, l'en-tête ne doit pas garder les couleurs "sur photo
-   sombre" ci-dessus, sous peine de texte clair sur fond clair. Spécificité
-   volontairement égale à la règle ci-dessus (même préfixe) pour être sûr
-   de la emporter malgré l'ordre des règles. */
-:root:not([data-theme="dark"]) body.nav-open .site-head:not(.is-stuck){
+/* le menu plein écran est un panneau clair : une fois ouvert, l'en-tête ne
+   doit pas garder les couleurs "sur photo sombre" ci-dessus, sous peine de
+   texte clair sur fond clair. Spécificité volontairement plus élevée que la
+   règle ci-dessus pour être sûre de l'emporter malgré l'ordre des règles. */
+body.nav-open .site-head:not(.is-stuck){
   --paper: unset; --paper-dim: unset; --paper-faint: unset;
   --gold: unset; --gold-hi: unset; --gold-deep: unset;
   --lede: unset; --line: unset; --line-soft: unset;
@@ -348,22 +323,50 @@ p{ margin:0; text-wrap:pretty; }
   background:var(--gold); transform:rotate(45deg);
 }
 
-/* interrupteur clair / sombre : bouton rond, icône soleil (mode clair actif)
-   ou lune (mode sombre actif) selon le thème courant */
-.theme-toggle{
-  flex:none; position:relative;
-  width:34px; height:34px; margin-left:4px; padding:0;
-  display:flex; align-items:center; justify-content:center;
-  border:1px solid var(--line); border-radius:999px; background:transparent;
+/* menu déroulant "Circuits" du menu desktop : même logique d'interaction
+   que le sélecteur de langue (.lang-switch), composant dupliqué plutôt que
+   factorisé pour ne pas retoucher .lang-switch, déjà en production. */
+.nav-dropdown{ position:relative; }
+.nav-dropdown__button{
+  display:flex; align-items:center; gap:5px;
+  background:transparent; border:0; padding:4px 0;
+  font-family:inherit; font-size:11.5px; letter-spacing:.16em; text-transform:uppercase;
   color:var(--paper-dim);
   cursor:pointer;
-  transition:border-color .4s var(--ease), color .4s var(--ease);
+  transition:color .45s var(--ease);
 }
-.theme-toggle:hover{ border-color:var(--gold); color:var(--gold); }
-.theme-icon{ width:17px; height:17px; }
-.theme-icon--moon{ display:none; }
-[data-theme="dark"] .theme-icon--sun{ display:none; }
-[data-theme="dark"] .theme-icon--moon{ display:block; }
+.nav-dropdown__button:hover{ color:var(--paper); }
+.nav-dropdown[data-open="true"] .nav-dropdown__button{ color:var(--paper); }
+.nav-dropdown__chevron{ width:10px; height:10px; transition:transform .35s var(--ease); }
+.nav-dropdown[data-open="true"] .nav-dropdown__chevron{ transform:rotate(180deg); }
+
+.nav-dropdown__menu{
+  position:absolute; top:calc(100% + 14px); left:50%; transform:translateX(-50%) translateY(-6px);
+  z-index:95;
+  list-style:none; margin:0; padding:8px;
+  min-width:190px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--overlay-soft);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);
+  backdrop-filter:blur(18px) saturate(120%);
+  box-shadow:0 24px 48px rgba(5,8,20,.22);
+  opacity:0; visibility:hidden;
+  transition:opacity .3s var(--ease-soft), transform .3s var(--ease-soft), visibility .3s;
+}
+.nav-dropdown[data-open="true"] .nav-dropdown__menu{
+  opacity:1; visibility:visible; transform:translateX(-50%) translateY(0);
+}
+.nav-dropdown__menu li + li{ margin-top:2px; }
+.nav-dropdown__menu a{
+  display:block; padding:11px 14px;
+  border-radius:10px;
+  font-size:13.5px; letter-spacing:.01em; text-transform:none;
+  color:var(--paper-dim);
+  transition:background-color .3s var(--ease), color .3s var(--ease);
+}
+.nav-dropdown__menu a:hover{ background:var(--line-soft); color:var(--paper); }
+.nav-dropdown__menu a[aria-current="true"]{ color:var(--gold-hi); font-weight:600; }
 
 /* bouton hamburger → croix */
 .burger{
@@ -413,6 +416,11 @@ p{ margin:0; text-wrap:pretty; }
   font-style:normal; font-family:var(--sans);
   font-size:10px; letter-spacing:.3em; color:var(--gold-deep);
 }
+/* sous-entrées (les 4 circuits, sous l'item "Circuits") : même liste, texte
+   plus discret, en retrait, sans numérotation ni bordure propre */
+.nav-overlay li.nav-overlay__sub{ border-bottom:none; padding-left:28px; }
+.nav-overlay li.nav-overlay__sub a{ padding:9px 0; font-size:16px; color:var(--paper-dim); }
+.nav-overlay li.nav-overlay__sub a:hover{ color:var(--gold-hi); }
 .nav-open .nav-overlay li a{ opacity:1; transform:translateY(0); }
 .nav-open .nav-overlay li:nth-child(1) a{ transition-delay:.10s; }
 .nav-open .nav-overlay li:nth-child(2) a{ transition-delay:.16s; }
@@ -1008,10 +1016,16 @@ form{ display:grid; gap:22px; }
 
 .site-foot{ background:var(--ink); border-top:1px solid var(--line-soft); padding-block:clamp(52px,7vw,84px) 34px; }
 .foot-top{ display:grid; grid-template-columns:1fr; gap:40px; }
-.foot-nav{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 24px; align-content:start; }
 .foot-brand .sub{ letter-spacing:.2em; }
-.foot-nav a{ font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--paper-dim); transition:color .45s var(--ease); }
-.foot-nav a:hover{ color:var(--gold-hi); }
+/* plan du site en colonnes thématiques : 2 colonnes en mobile, 4 en desktop */
+.foot-groups{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:32px 24px; }
+.foot-group h3{
+  font-family:var(--sans); font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--paper-faint); font-weight:400; margin:0 0 14px;
+}
+.foot-group{ display:flex; flex-direction:column; gap:11px; }
+.foot-group a{ font-size:12.5px; letter-spacing:.04em; color:var(--paper-dim); transition:color .45s var(--ease); }
+.foot-group a:hover{ color:var(--gold-hi); }
 .foot-bar{
   margin-top:clamp(40px,5vw,64px); padding-top:26px;
   border-top:1px solid var(--line-soft);
@@ -1100,14 +1114,15 @@ form{ display:grid; gap:22px; }
   .contact-grid{ max-width:640px; }
   .quiet{ grid-template-columns:1.05fr .95fr; align-items:start; }
   .foot-top{ grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr); align-items:start; }
+  .foot-groups{ grid-template-columns:repeat(4,minmax(0,1fr)); gap:24px; }
   .scrollcue{ display:flex; }
   .spec{ grid-template-columns:repeat(4,1fr); }
   .hero{ padding-top:160px; }
 }
 
 /* la nav desktop a besoin d'un peu plus de place que le reste de la mise
-   en page (six liens + sélecteur de langue à 4 entrées + interrupteur de
-   thème + bouton) : seuil séparé, plus élevé que les autres grilles */
+   en page (six liens (dont un menu déroulant) + sélecteur de langue à
+   4 entrées + bouton) : seuil séparé, plus élevé que les autres grilles */
 @media (min-width:1180px){
   .nav-desk{ display:flex; }
   .burger{ display:none; }
