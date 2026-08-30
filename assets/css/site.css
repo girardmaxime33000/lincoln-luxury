@@ -492,7 +492,7 @@ p{ margin:0; text-wrap:pretty; }
   display:flex; align-items:center; gap:14px;
   margin-bottom:clamp(20px,3vh,34px);
 }
-.hero h1{ max-width:14ch; }
+.hero h1{ max-width:14ch; color:var(--paper); }
 .hero h1 .ln{ display:block; overflow:hidden; }
 .hero h1 .ln > span{
   display:block;
