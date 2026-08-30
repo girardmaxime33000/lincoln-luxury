@@ -25,6 +25,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.lincoln-luxury.fr/blog/visiter-bordeaux-chauffeur-prive/">
 
+<!-- versions linguistiques de cette page -->
+<link rel="alternate" hreflang="fr" href="https://www.lincoln-luxury.fr/blog/visiter-bordeaux-chauffeur-prive/">
+<link rel="alternate" hreflang="en" href="https://www.lincoln-luxury.fr/en/blog/visiter-bordeaux-chauffeur-prive/">
+<link rel="alternate" hreflang="es" href="https://www.lincoln-luxury.fr/es/blog/visiter-bordeaux-chauffeur-prive/">
+<link rel="alternate" hreflang="zh" href="https://www.lincoln-luxury.fr/zh/blog/visiter-bordeaux-chauffeur-prive/">
+<link rel="alternate" hreflang="x-default" href="https://www.lincoln-luxury.fr/blog/visiter-bordeaux-chauffeur-prive/">
+
 <meta property="og:type" content="article">
 <meta property="og:locale" content="fr_FR">
 <meta property="og:site_name" content="Lincoln Luxury">
@@ -75,6 +82,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <a href="../index.html" aria-current="page">Blog</a>
       <a href="../../index.html#contact">Contact</a>
     </nav>
+
+    <div class="lang-switch" id="lang-switch">
+      <button class="lang-switch__button" id="lang-switch-toggle" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lang-switch-menu">
+        <span>FR</span>
+        <svg class="lang-switch__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <ul class="lang-switch__menu" id="lang-switch-menu" role="menu" aria-label="Choisir la langue">
+        <li role="none"><a role="menuitem" href="index.html" lang="fr" hreflang="fr" aria-current="true">Français</a></li>
+        <li role="none"><a role="menuitem" href="../../en/blog/visiter-bordeaux-chauffeur-prive/index.html" lang="en" hreflang="en">English</a></li>
+        <li role="none"><a role="menuitem" href="../../es/blog/visiter-bordeaux-chauffeur-prive/index.html" lang="es" hreflang="es">Español</a></li>
+        <li role="none"><a role="menuitem" href="../../zh/blog/visiter-bordeaux-chauffeur-prive/index.html" lang="zh" hreflang="zh">中文</a></li>
+      </ul>
+    </div>
 
     <a class="btn btn--solid head-cta" href="../../index.html#contact"><span>Réserver</span><span class="arrow" aria-hidden="true">&rarr;</span></a>
 
@@ -517,6 +537,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     });
     navCircuits.addEventListener("keydown", function (e) {
       if (e.key === "Escape") { closeNavCircuits(); navCircuitsToggle.focus(); }
+    });
+  }
+
+  var langSwitch = document.getElementById("lang-switch");
+  var langToggle = document.getElementById("lang-switch-toggle");
+  if (langSwitch && langToggle) {
+    var closeLangMenu = function () {
+      langSwitch.setAttribute("data-open", "false");
+      langToggle.setAttribute("aria-expanded", "false");
+    };
+    langToggle.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var open = langSwitch.getAttribute("data-open") === "true";
+      langSwitch.setAttribute("data-open", String(!open));
+      langToggle.setAttribute("aria-expanded", String(!open));
+    });
+    document.addEventListener("click", function (e) {
+      if (!langSwitch.contains(e.target)) { closeLangMenu(); }
+    });
+    langSwitch.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { closeLangMenu(); langToggle.focus(); }
     });
   }
 
