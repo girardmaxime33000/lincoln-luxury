@@ -1,12 +1,12 @@
 # Crédits photo
 
-Photographies utilisées sur le site Lincoln Luxury (`assets/img/`). Les cinq
-premières viennent de Wikimedia Commons sous licence libre ; la dernière est
-utilisée avec l'autorisation de sa source, comme convenu avec le client.
+Photographies utilisées sur le site Lincoln Luxury (`assets/img/`). La
+plupart viennent de Wikimedia Commons sous licence libre ; deux sont
+utilisées avec l'autorisation de leur source, comme convenu avec le client.
 
 | Fichier | Sujet | Auteur | Licence | Source |
 |---|---|---|---|---|
-| `bordeaux-place-de-la-bourse-nuit-1200.jpg` / `-2400.jpg` | Bordeaux, place de la Bourse et miroir d'eau, de nuit | Mariette | Domaine public | Wikimedia Commons |
+| `mercedes-chateau-vignoble-700.jpg` / `-1301.jpg` | Mercedes Classe S devant un château du vignoble bordelais | — | Fournie par le client | Fournie par le client |
 | `vignoble-saint-emilion-800.jpg` / `-1600.jpg` | Vignes de Saint-Émilion | Amanda Hinault | CC BY-SA 3.0 | Wikimedia Commons |
 | `rangs-de-vigne-sauternes-700.jpg` / `-1400.jpg` | Vignoble du Sauternais sous la brume | Chantal-33 | CC BY-SA 4.0 | Wikimedia Commons |
 | `route-des-chateaux-medoc-700.jpg` / `-1400.jpg` | Route des châteaux, Médoc | F.FATIN | CC BY-SA 4.0 | Wikimedia Commons |
