@@ -12,7 +12,7 @@ Bordeaux, en Mercedes Classe S.
   - [Contenu des pages](#contenu-des-pages)
   - [Simulateur de devis & repères façon réservation/VTC](#simulateur-de-devis--repères-façon-réservationvtc)
   - [Référencement, suivi & accessibilité](#référencement-suivi--accessibilité)
-  - [Mode clair / sombre](#mode-clair--sombre)
+  - [Navigation](#navigation)
 - [Formulaire → Google Sheets](#formulaire--google-sheets)
   - [Mise en place](#mise-en-place-à-faire-une-seule-fois)
   - [Fonctionnement](#fonctionnement)
@@ -167,15 +167,19 @@ artificielle) :
   l'en-tête, le menu plein écran, le bandeau défilant et les effets visuels
   du hero pour ne conserver que le contenu utile.
 
-### Mode clair / sombre
+### Navigation
 
-Le site est sombre par défaut. Un bouton dans l'en-tête (à côté du
-sélecteur de langue) bascule vers un mode clair, en reprenant la palette
-crème déjà utilisée par certaines sections. Le choix est mémorisé
-(`localStorage`) et, à défaut, la préférence système
-(`prefers-color-scheme`) est respectée au premier chargement. Le hero
-(photo de nuit) garde volontairement ses couleurs sombres dans les deux
-thèmes, le temps que l'en-tête ne soit pas encore "collée" en haut de page.
+Menu desktop, menu plein écran (mobile) et pied de page renvoient vers les
+sections de l'accueil et vers les 4 pages circuit. Le lien « Circuits » du
+menu desktop est un menu déroulant (sur le même modèle que le sélecteur de
+langue) qui liste directement les 4 circuits ; le menu mobile reprend ces
+mêmes liens en sous-entrées sous « Circuits ». Le pied de page est organisé
+en colonnes thématiques (Circuits, Le service, Découvrir, Contact) plutôt
+qu'en une liste plate, pour servir de plan du site.
+
+Le site est clair par défaut et n'a pas de mode sombre. Seuls l'en-tête, le
+pied de page et la photo du hero restent sombres pour rester lisibles sur
+la photo, tant que l'en-tête n'est pas encore "collée" en haut de page.
 
 ## Formulaire → Google Sheets
 
