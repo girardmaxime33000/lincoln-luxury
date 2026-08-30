@@ -363,16 +363,54 @@ p{ margin:0; text-wrap:pretty; }
 
 .head-cta{ display:none; padding:13px 22px; }
 
-.lang-switch{ display:flex; align-items:center; gap:7px; margin-left:2px; }
-.lang-switch a{
-  font-size:11px; letter-spacing:.06em;
+.lang-switch{ position:relative; margin-left:2px; }
+.lang-switch__button{
+  display:flex; align-items:center; gap:6px;
+  background:transparent; border:0; padding:6px 2px;
+  font-family:var(--sans); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
   color:var(--paper-faint);
+  cursor:pointer;
   transition:color .4s var(--ease);
-  white-space:nowrap;
 }
-.lang-switch a:hover{ color:var(--paper); }
-.lang-switch a[aria-current="true"]{ color:var(--gold-hi); }
-.lang-switch .sep{ color:var(--line); font-size:10px; }
+.lang-switch__button:hover{ color:var(--paper); }
+.lang-switch[data-open="true"] .lang-switch__button{ color:var(--paper); }
+.lang-switch__chevron{
+  width:10px; height:10px;
+  transition:transform .35s var(--ease);
+}
+.lang-switch[data-open="true"] .lang-switch__chevron{ transform:rotate(180deg); }
+
+.lang-switch__menu{
+  position:absolute; top:calc(100% + 14px); right:0; z-index:95;
+  list-style:none; margin:0; padding:8px;
+  min-width:176px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--overlay-soft);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);
+  backdrop-filter:blur(18px) saturate(120%);
+  box-shadow:0 24px 48px rgba(5,8,20,.22);
+  opacity:0; visibility:hidden; transform:translateY(-6px);
+  transition:opacity .3s var(--ease-soft), transform .3s var(--ease-soft), visibility .3s;
+}
+.lang-switch[data-open="true"] .lang-switch__menu{
+  opacity:1; visibility:visible; transform:translateY(0);
+}
+.lang-switch__menu li + li{ margin-top:2px; }
+.lang-switch__menu a{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:11px 14px;
+  border-radius:10px;
+  font-size:13.5px; letter-spacing:.01em;
+  color:var(--paper-dim);
+  transition:background-color .3s var(--ease), color .3s var(--ease);
+}
+.lang-switch__menu a:hover{ background:var(--line-soft); color:var(--paper); }
+.lang-switch__menu a[aria-current="true"]{ color:var(--gold-hi); font-weight:600; }
+.lang-switch__menu a[aria-current="true"]::after{
+  content:""; width:6px; height:6px; flex:none;
+  background:var(--gold); transform:rotate(45deg);
+}
 
 /* interrupteur clair / sombre : bouton rond, icône soleil (mode clair actif)
    ou lune (mode sombre actif) selon le thème courant */
@@ -1194,12 +1232,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <a href="index.html#contact">Contact</a>
     </nav>
 
-    <nav class="lang-switch" aria-label="Choose language">
-      <a href="../index.html" lang="fr" hreflang="fr">FR</a><span class="sep" aria-hidden="true">/</span>
-      <a href="index.html" lang="en" hreflang="en" aria-current="true">EN</a><span class="sep" aria-hidden="true">/</span>
-      <a href="../es/index.html" lang="es" hreflang="es">ES</a><span class="sep" aria-hidden="true">/</span>
-      <a href="../zh/index.html" lang="zh" hreflang="zh">中文</a>
-    </nav>
+    <div class="lang-switch" id="lang-switch">
+      <button class="lang-switch__button" id="lang-switch-toggle" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lang-switch-menu">
+        <span>EN</span>
+        <svg class="lang-switch__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <ul class="lang-switch__menu" id="lang-switch-menu" role="menu" aria-label="Choose language">
+        <li role="none"><a role="menuitem" href="../index.html" lang="fr" hreflang="fr">Français</a></li>
+        <li role="none"><a role="menuitem" href="index.html" lang="en" hreflang="en" aria-current="true">English</a></li>
+        <li role="none"><a role="menuitem" href="../es/index.html" lang="es" hreflang="es">Español</a></li>
+        <li role="none"><a role="menuitem" href="../zh/index.html" lang="zh" hreflang="zh">中文</a></li>
+      </ul>
+    </div>
 
     <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode">
       <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
@@ -2214,6 +2258,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       root.setAttribute("data-theme", next);
       reflectTheme(next);
       try { window.localStorage.setItem(THEME_KEY, next); } catch (e) {}
+    });
+  }
+
+  /* ---------- language dropdown menu ---------- */
+  var langSwitch = document.getElementById("lang-switch");
+  var langToggle = document.getElementById("lang-switch-toggle");
+  if (langSwitch && langToggle) {
+    var closeLangMenu = function () {
+      langSwitch.setAttribute("data-open", "false");
+      langToggle.setAttribute("aria-expanded", "false");
+    };
+    langToggle.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var open = langSwitch.getAttribute("data-open") === "true";
+      langSwitch.setAttribute("data-open", String(!open));
+      langToggle.setAttribute("aria-expanded", String(!open));
+    });
+    document.addEventListener("click", function (e) {
+      if (!langSwitch.contains(e.target)) { closeLangMenu(); }
+    });
+    langSwitch.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { closeLangMenu(); langToggle.focus(); }
     });
   }
 
