@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thank You — Tip &amp; Review | Lincoln Luxury</title>
+<meta name="description" content="Thank you for riding with Lincoln Luxury. Leave a tip in a few taps and share your experience on Google.">
+<!-- Utility page reached only via QR code / footer link: kept out of search results and out of the main menu on purpose. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0B0B0D">
+<link rel="icon" href="data:,">
+
+<!-- Self-hosted brand fonts already used sitewide — no external request, no CDN. -->
+<link rel="stylesheet" href="../assets/css/fonts.css">
+
+<style>
+  :root{
+    --bg:        #0B0B0D;
+    --bg-2:      #141317;
+    --card:      #19181D;
+    --card-2:    #211F26;
+    --line:      rgba(255,255,255,.09);
+    --line-soft: rgba(255,255,255,.05);
+    --text:      #F4EFE4;
+    --text-dim:  #B7B2A8;
+    --text-faint:#7C776E;
+    --gold:      #CBA135;
+    --gold-hi:   #E7C766;
+    --gold-deep: #8F711F;
+    --star:      #E7C766;
+    --display: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+    --sans: "Jost", "Futura", "Avenir Next", "Helvetica Neue", system-ui, sans-serif;
+    --r-lg: 20px;
+    --r-md: 14px;
+    --r-sm: 10px;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ background:var(--bg); }
+  body{
+    margin:0;
+    background:
+      radial-gradient(120% 60% at 50% 0%, rgba(203,161,53,.10), rgba(203,161,53,0) 60%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+    color:var(--text);
+    font:16px/1.55 var(--sans);
+    -webkit-font-smoothing:antialiased;
+    min-height:100svh;
+    padding: 28px 18px 56px;
+  }
+
+  .page{
+    max-width: 460px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Header ---------- */
+  .head{
+    text-align:center;
+    padding: 6px 0 30px;
+  }
+  .avatar{
+    width:84px; height:84px;
+    margin:0 auto 18px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(155deg, var(--card-2), var(--card));
+    border:1px solid var(--line);
+    box-shadow: 0 0 0 1px rgba(203,161,53,.18), 0 18px 40px rgba(0,0,0,.45);
+    font-family:var(--display);
+    font-size:28px;
+    color:var(--gold-hi);
+    overflow:hidden;
+  }
+  .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  .brand{
+    font-family:var(--sans);
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    margin:0 0 14px;
+  }
+  .brand b{ color:var(--gold-hi); font-weight:500; }
+
+  h1.welcome{
+    font-family:var(--display);
+    font-weight:500;
+    font-size:clamp(26px, 7vw, 32px);
+    line-height:1.2;
+    margin:0 0 10px;
+    color:var(--text);
+  }
+  .welcome-sub{
+    font-size:14.5px;
+    color:var(--text-dim);
+    margin:0;
+    max-width:34ch;
+    margin-inline:auto;
+  }
+
+  /* ---------- Cards / sections ---------- */
+  .card{
+    background: linear-gradient(175deg, var(--card-2), var(--card));
+    border:1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 26px 22px 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 24px 48px rgba(0,0,0,.35);
+  }
+
+  .sec-title{
+    font-family:var(--display);
+    font-weight:500;
+    font-size:21px;
+    margin:0 0 4px;
+    color:var(--text);
+  }
+  .sec-sub{
+    font-size:13px;
+    color:var(--text-faint);
+    margin:0 0 20px;
+  }
+
+  /* ---------- Tip amounts ---------- */
+  .amounts{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .amt{
+    display:flex; align-items:center; justify-content:center;
+    gap:2px;
+    padding:18px 8px;
+    border-radius: var(--r-md);
+    border:1px solid var(--line);
+    background: rgba(255,255,255,.02);
+    color:var(--text);
+    font-family:var(--display);
+    font-size:22px;
+    font-weight:500;
+    text-decoration:none;
+    transition: border-color .18s ease, background .18s ease, transform .12s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .amt:active{ transform: scale(.97); }
+  .amt:hover, .amt:focus-visible{
+    border-color: var(--gold-deep);
+    background: rgba(203,161,53,.08);
+    outline:none;
+  }
+  .amt .cur{ font-size:15px; color:var(--gold-hi); margin-right:2px; }
+
+  .custom-row{
+    display:flex;
+    gap:10px;
+    margin-top:6px;
+  }
+  .custom-input-wrap{
+    position:relative;
+    flex:1;
+  }
+  .custom-input-wrap .cur{
+    position:absolute; left:14px; top:50%; transform:translateY(-50%);
+    color:var(--gold-hi); font-family:var(--display); font-size:16px;
+  }
+  input#custom-amount{
+    width:100%;
+    background: rgba(255,255,255,.03);
+    border:1px solid var(--line);
+    border-radius: var(--r-md);
+    color:var(--text);
+    font:500 16px var(--sans);
+    padding:14px 14px 14px 30px;
+    -moz-appearance:textfield;
+  }
+  input#custom-amount::placeholder{ color:var(--text-faint); }
+  input#custom-amount:focus{ outline:none; border-color:var(--gold-deep); }
+  input#custom-amount::-webkit-outer-spin-button,
+  input#custom-amount::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+
+  .btn-gold{
+    display:inline-flex; align-items:center; justify-content:center;
+    white-space:nowrap;
+    padding:14px 20px;
+    border-radius: var(--r-md);
+    border:none;
+    background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+    color:#20180A;
+    font:600 14.5px var(--sans);
+    letter-spacing:.01em;
+    text-decoration:none;
+    cursor:pointer;
+    transition: filter .15s ease, transform .12s ease;
+  }
+  .btn-gold:active{ transform: scale(.97); }
+  .btn-gold:hover{ filter:brightness(1.06); }
+  .btn-gold[aria-disabled="true"]{
+    opacity:.4; pointer-events:none;
+  }
+
+  .pay-note{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin-top:18px;
+    font-size:11.5px;
+    color:var(--text-faint);
+    text-align:center;
+  }
+  .pay-note svg{ width:13px; height:13px; flex:none; opacity:.8; }
+
+  .pay-badges{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    margin-top:14px;
+    flex-wrap:wrap;
+  }
+  .pay-badge{
+    font-size:11px;
+    letter-spacing:.04em;
+    color:var(--text-dim);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:6px 12px;
+    background: rgba(255,255,255,.02);
+  }
+
+  /* ---------- Reviews ---------- */
+  .stars{
+    display:flex; gap:6px; justify-content:center;
+    margin: 4px 0 18px;
+  }
+  .stars svg{ width:26px; height:26px; }
+  .stars svg path{ fill:var(--star); }
+
+  .review-cta{
+    display:flex; flex-direction:column; align-items:center;
+    text-align:center;
+    gap:14px;
+    margin-bottom: 22px;
+  }
+  .review-cta .btn-gold{ width:100%; padding:16px 20px; font-size:15px; }
+  .review-cta p{ margin:0; font-size:13px; color:var(--text-dim); max-width:32ch; }
+
+  /* ---------- Testimonials carousel ---------- */
+  .quotes{
+    display:flex;
+    gap:12px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    padding-bottom:6px;
+    margin: 0 -22px;
+    padding-inline: 22px;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .quotes::-webkit-scrollbar{ display:none; }
+  .quote{
+    scroll-snap-align:start;
+    flex:0 0 78%;
+    background: rgba(255,255,255,.025);
+    border:1px solid var(--line-soft);
+    border-radius: var(--r-md);
+    padding:18px 16px;
+  }
+  .quote p{
+    margin:0 0 12px;
+    font-size:13.5px;
+    line-height:1.6;
+    color:var(--text-dim);
+    font-style:italic;
+  }
+  .quote footer{
+    font-size:11.5px;
+    color:var(--text-faint);
+    display:flex; align-items:center; gap:6px;
+  }
+  .quote footer .qstars{ display:flex; gap:1px; }
+  .quote footer .qstars svg{ width:10px; height:10px; }
+  .quote footer .qstars svg path{ fill:var(--star); }
+
+  /* ---------- Footer ---------- */
+  .foot{
+    text-align:center;
+    padding-top:8px;
+  }
+  .foot a{ color:var(--text-dim); text-decoration:underline; text-underline-offset:3px; }
+  .foot p{
+    margin:0 0 6px;
+    font-size:11.5px;
+    color:var(--text-faint);
+  }
+
+  @media (min-width: 520px){
+    body{ padding-top:56px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ===================== HEADER =====================
+       DRIVER_NAME / DRIVER_PHOTO: replace the initials or <img> below with
+       your own photo and name. -->
+  <header class="head">
+    <div class="avatar" aria-hidden="true">
+      <!-- Replace with: <img src="driver-photo.jpg" alt=""> -->
+      <span>LL</span>
+    </div>
+    <p class="brand">Your driver &mdash; <b>Lincoln Luxury</b></p>
+    <h1 class="welcome">Thank you for riding!</h1>
+    <p class="welcome-sub">Enjoyed the service? A tip and a quick review go a long way &mdash; and take less than a minute.</p>
+  </header>
+
+  <!-- ===================== TIPS =====================
+       STRIPE LINKS — replace every href="https://buy.stripe.com/REPLACE_..."
+       below with your own Stripe Payment Link for that amount.
+       See README.md for step-by-step setup (Apple Pay / Google Pay included
+       automatically once enabled in the Stripe Dashboard). -->
+  <section class="card" aria-labelledby="t-tip">
+    <h2 class="sec-title" id="t-tip">Leave a Tip</h2>
+    <p class="sec-sub">100% goes straight to your driver.</p>
+
+    <div class="amounts" role="group" aria-label="Preset tip amounts">
+      <a class="amt" href="https://buy.stripe.com/REPLACE_10" target="_blank" rel="noopener">
+        <span class="cur">€</span>10
+      </a>
+      <a class="amt" href="https://buy.stripe.com/REPLACE_20" target="_blank" rel="noopener">
+        <span class="cur">€</span>20
+      </a>
+      <a class="amt" href="https://buy.stripe.com/REPLACE_50" target="_blank" rel="noopener">
+        <span class="cur">€</span>50
+      </a>
+      <a class="amt" href="https://buy.stripe.com/REPLACE_100" target="_blank" rel="noopener">
+        <span class="cur">€</span>100
+      </a>
+    </div>
+
+    <div class="custom-row">
+      <div class="custom-input-wrap">
+        <span class="cur">€</span>
+        <input id="custom-amount" type="number" inputmode="decimal" min="1" step="1" placeholder="Custom amount">
+      </div>
+      <a id="custom-pay-btn" class="btn-gold" aria-disabled="true"
+         href="https://buy.stripe.com/REPLACE_CUSTOM" target="_blank" rel="noopener">
+        Send
+      </a>
+    </div>
+
+    <p class="pay-note">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-4Zm0 2.2 7 3.1v4.7c0 4.5-3 8.7-7 9.9-4-1.2-7-5.4-7-9.9V6.3l7-3.1Z"/><path d="m10.9 13.6-2-2-1.4 1.4 3.4 3.4 6-6-1.4-1.4-4.6 4.6Z"/></svg>
+      Fast &amp; secure payment via Apple Pay, Google Pay or card
+    </p>
+    <div class="pay-badges" aria-hidden="true">
+      <span class="pay-badge"> Apple Pay</span>
+      <span class="pay-badge">G Pay</span>
+      <span class="pay-badge">Visa · Mastercard</span>
+    </div>
+  </section>
+
+  <!-- ===================== REVIEWS =====================
+       GOOGLE REVIEW LINK — replace the placeid= value below with your own
+       Google Business Profile Place ID. See README.md for how to find it. -->
+  <section class="card" aria-labelledby="t-review">
+    <h2 class="sec-title" id="t-review" style="text-align:center">Rate Your Ride</h2>
+    <p class="sec-sub" style="text-align:center">Your feedback helps other travelers find us.</p>
+
+    <div class="stars" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+    </div>
+
+    <div class="review-cta">
+      <a class="btn-gold" href="https://search.google.com/local/writereview?placeid=REPLACE_WITH_PLACE_ID" target="_blank" rel="noopener">
+        Leave a Review on Google
+      </a>
+      <p>Opens Google &mdash; takes less than a minute.</p>
+    </div>
+
+    <!-- DEMO quotes — replace with real client reviews (with their consent)
+         before publishing, same convention as the rest of the site. -->
+    <div class="quotes" tabindex="0" aria-label="Client reviews">
+      <blockquote class="quote">
+        <p>&ldquo;On time, spotless car, and the driver knew exactly which roads to take to beat the traffic to the airport.&rdquo;</p>
+        <footer>
+          <span class="qstars" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+          </span>
+          Business traveler, Bordeaux airport
+        </footer>
+      </blockquote>
+      <blockquote class="quote">
+        <p>&ldquo;Felt like a private guide as much as a driver. Very smooth booking and an immaculate S-Class.&rdquo;</p>
+        <footer>
+          <span class="qstars" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+          </span>
+          Couple, wine tour guests
+        </footer>
+      </blockquote>
+      <blockquote class="quote">
+        <p>&ldquo;Booked last minute for a client visit. Professional, discreet, and genuinely pleasant to ride with.&rdquo;</p>
+        <footer>
+          <span class="qstars" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 15 9l7 1-5.2 5 1.4 7-6.2-3.4L5.8 22l1.4-7L2 10l7-1 3-6.5Z"/></svg>
+          </span>
+          Corporate client, Bordeaux
+        </footer>
+      </blockquote>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>Lincoln Luxury &mdash; Bordeaux</p>
+    <p><a href="../index.html">www.lincoln-luxury.fr</a></p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Enable the custom-amount "Send" button only once a positive value is
+  // entered. The typed value is a preview only: Stripe's "customer chooses
+  // the price" checkout is what actually collects and charges the amount
+  // (Payment Links cannot take a price via URL parameter).
+  var input = document.getElementById("custom-amount");
+  var sendBtn = document.getElementById("custom-pay-btn");
+
+  function refreshCustomBtn(){
+    var v = parseFloat(input.value);
+    var ok = !isNaN(v) && v > 0;
+    sendBtn.setAttribute("aria-disabled", ok ? "false" : "true");
+    sendBtn.textContent = ok ? ("Send €" + v) : "Send";
+  }
+  input.addEventListener("input", refreshCustomBtn);
+  sendBtn.addEventListener("click", function(e){
+    if (sendBtn.getAttribute("aria-disabled") === "true") e.preventDefault();
+  });
+
+  // Mark a preset amount as chosen for a moment, purely visual feedback —
+  // navigation itself is handled by the link's own href.
+  document.querySelectorAll(".amt").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      document.querySelectorAll(".amt").forEach(function(b){ b.removeAttribute("aria-pressed"); });
+      btn.setAttribute("aria-pressed", "true");
+    });
+  });
+})();
+</script>
+</body>
+</html>
